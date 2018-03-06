@@ -1,0 +1,89 @@
+#+TITLE: Überwald
+
+Überwald is a simple Lisp dialect and interpreter I'm writing to learn about Lisps, interpreters, and writing C code that doesn't explode.
+
+
+
+* The language
+** General specifications
+
+ - [[https://en.wikipedia.org/wiki/Common_Lisp#The_function_namespace][LISP-1]] (a single namespace for functions and variables)
+ - Interpreted;
+ - Source code is UTF-8, unless implementation language doesn't support it/makes it hard, in which case ASCII.
+ - Hygienic or unhygienic macros;
+ - Syntactic bindings by default.
+ - CL-like reader-macros (=set-macro-character=)
+
+** Language
+
+*** Name bindings
+
+Name bindings are performed within a hierarchical set of environments.  An environment is a structure holding a reference to its parent and a list of names bound to Lisp values.  Looking up a symbol means looking it up into the bottommost environment, then its parent, until a binding for the symbol has been found or a parentless environment has been reached.
+
+*** Functions
+
+A function is stored as:
+
+#+BEGIN_EXAMPLE
+[type [args] body]
+#+END_EXAMPLE
+
+where:
+
+ - type is either =:closure= or =:special=.  The former is for a regular function, the latter defines a special form, which receives its arguments unevaluated.
+ - =args= is an argument vector.  It's a vector of either:
+   - symbols, for named argument;
+   - the =:optional= keyword, once, immediately after the last required argument;
+   - the =:variadic= keyword, once, immediately before the last argument.
+
+*** Atoms
+
+ - boolean ::
+ - integers :: the usual notations
+ - floats :: same here
+ - keywords :: identified by a colon, as in =:keyword=.  Implemented as a reader macro of the standard library: =:some-keyword= expands to (lispy.keywords.find-or-create)
+
+** Functions
+
+*** Primitive functions
+
+Notice these functions aren't special forms.  Lispy has a concept of lazy functions.
+
+ - =(if [condition then & else])= :: evaluate =condition=, then =then= if condition is true, else either.
+ - =(progn [& body])= :: evaluate every sexp in =body= and return the value of the last one.
+ - =(quote [& cdr])= :: evaluate to =cdr=.
+
+*** Interpreter
+
+ - =(read [s])= :: Read =s= and return a S-expression.
+ - =(eval [& cdr]) :: Evaluates =cdr= as a Lispy AST.
+
+**** Inspecting environments
+
+ - (bound? [symbol]) :: returns =t= if =symbol= is bound in the current environment (defined as the bottommost environment and its parents, up to the root.)
+
+**** Inspecting values
+
+No surprise there:
+
+ - =(integer? [x])=
+ - =(float? [x])=
+ - =(bool? [x])=
+ - (=number [x])=
+ - =(string? [x])=
+ - =(list? [x])=
+ - =(vector? [x])=
+ - =(null? [x])=
+
+**** Manipulating symbols
+
+- =(set [symbol value])= :: bind =value= to =symbol= in the deepest environment where symbol is defined, or the root environment.
+
+*** File I/O
+
+ - =(fopen path mode)= :: Opens =desc= with =mode= and returns a file descriptor.  The exact type of descriptors is system-dependant.
+ - =(fclose desc)= :: Closes file descriptor DESC.
+ - =(fread)= ::
+ - =(fwrite desc bytes)= ::
+ - =(fseek desc pos)= ::
+ - =stdin=, =stdout=, =stderr= :: File descriptors for standard input, output and error output.
