@@ -1,24 +1,19 @@
 // This file defines the primitive Lisp types used in Lispy.
 
+#pragma once
+
 #include <stdint.h>
 
-#define DEFN_0(name, lisp_name) LispObject * name ()
-#define DEFN_1(name, lisp_name) LispObject * name (LispObject * arg0)
-#define DEFN_MANY(name, lisp_name) LispObject * name (LispObject * args)
+#include "defn.h"
 
-#define LFUN_0(name) LispObject * name ()
-#define LFUN_1(name) LispObject * name (LispObject * arg0)
-#define LFUN_MANY(name) LispObject * name (LispObject * args)
-
-
-// Lists
+// * Lists
 
 struct list_t {
   struct obj_t * car;
   struct obj_t * cdr;
 };
 
-// Vectors
+// * Vectors
 
 struct vector_t {
   int capacity;
@@ -27,19 +22,20 @@ struct vector_t {
   struct obj_t ** data;
 };
 
-// Booleans
+// * Booleans
 
-enum boolean_t { T, NIL };
+typedef enum { NIL=0, T=1 }  bool_t;
 
-// Integer
+// * Integer
 
-#define integer_t int
+typedef int integer_t;
 
-// Floats
+// * Floats
 
-#define float_t double
+typedef double fpn_t;
 
-// Strings
+// * Strings
+
 // Strings are Unicode scalar values (as in Racket), so we need at least 21 bits integers.
 
 typedef int_least32_t** string_t;
@@ -57,9 +53,9 @@ union primitive_t {
   struct list_t list;
   struct vector_t vector;
 
-  enum boolean_t boolean;
+  bool_t bool;
   integer_t integer;
-  float_t fpn;
+  fpn_t fpn;
   string_t string;
 
   struct nfunc_t nfunc;
@@ -72,7 +68,7 @@ enum type_t {
 
   BOOLEAN,
   INTEGER,
-  FLOAT,
+  FPN,
   STRING,
 
   KEYWORD,
@@ -89,26 +85,31 @@ struct obj_t {
 
 typedef struct obj_t LispObject;
 
-DEFN_1 (list_p, "list?");
-DEFN_1 (list_car, "car");
-DEFN_1 (list_cdr, "cdr");
+#define DECL_INITIALIZER(name, ctype) \
+  void ubw_init ## name(LispObject * o, ctype v); \
+  LispObject * ubw_new ## name(ctype v); \
+  ctype ubw_get ## name (LispObject * o);
 
-DEFN_1 (vector_p, "vector?");
+DEFN_1 (list_p, "list?",o);
+DEFN_1 (list_car, "car",o);
+DEFN_1 (list_cdr, "cdr",o);
+
+DEFN_1 (vector_p, "vector?",o);
 struct vector_t * vector_init(int capacity, int increment);
 int vector_push(struct vector_t * v, struct obj_t o);
 int vector_grow(struct vector_t * v);
 void vector_free(struct vector_t * v);
 
-DEFN_1 (list_p, "boolean?");
+DEFN_1 (bool_p, "boolean?",o);
+DECL_INITIALIZER (bool,bool_t)
 
-DEFN_1 (boolean_p, "boolean?");
-LispObject * bool_true();
-LispObject * bool_false();
+DECL_INITIALIZER (integer,integer_t)
+DEFN_1 (integer_p, "integer?",o);
 
-DEFN_1 (integer_p, "integer?");
-DEFN_1 (float_p, "float?");
-DEFN_1 (string_p, "string?");
-DEFN_1 (keyword_p, "keyword?");
-DEFN_1 (symbol_p, "symbol?");
-DEFN_1 (native_func_p, "machine-function?");
-DEFN_1 (special_form_p, "special-form?");
+DECL_INITIALIZER (fpn,fpn_t)
+DEFN_1 (float_p, "float?",o);
+DEFN_1 (string_p, "string?",o);
+DEFN_1 (keyword_p, "keyword?",o);
+DEFN_1 (symbol_p, "symbol?",o);
+DEFN_1 (native_func_p, "machine-function?",o);
+DEFN_1 (special_form_p, "special-form?",o);
