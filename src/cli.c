@@ -1,4 +1,7 @@
 #include <stdio.h>
+#include <stdlib.h>
+
+#include "readline/readline.h"
 
 #include "uberwald.h"
 
@@ -9,5 +12,9 @@ int main (int argc, char ** argv) {
     read_dispatch(argv[1], 0);
   }
 
-  printf("Integer is: %d\n", ubw_getinteger(ubw_newinteger(3)));
+  char * line = 0x00;
+  do {
+    line = readline("> ");
+    ubw_read(line);
+  } while (NULL != line);
 }
