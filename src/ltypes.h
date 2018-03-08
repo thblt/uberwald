@@ -19,7 +19,7 @@ struct vector_t {
   int capacity;
   int size;
   int increment;
-  struct obj_t ** data;
+  struct obj_t * data;
 };
 
 // * Booleans
@@ -36,16 +36,13 @@ typedef double fpn_t;
 
 // * Strings
 
-// Strings are Unicode scalar values (as in Racket), so we need at least 21 bits integers.
+// Strings are Unicode scalar values (as in Racket), so we need at
+// least 21 bits integers.
 
 typedef int_least32_t** string_t;
 string_t cstr_lstr(char ** cstr);
 
 struct nfunc_t {
-  struct obj_t * (*func)(struct obj_t*);
-};
-
-struct sform_t {
   struct obj_t * (*func)(struct obj_t*);
 };
 
@@ -59,7 +56,6 @@ union primitive_t {
   string_t string;
 
   struct nfunc_t nfunc;
-  struct sform_t sform;
 };
 
 enum type_t {
@@ -75,7 +71,6 @@ enum type_t {
   SYMBOL,
 
   CFUNC, // Native function
-  SFORM, // Special form
 };
 
 struct obj_t {
@@ -90,11 +85,11 @@ typedef struct obj_t LispObject;
   LispObject * ubw_new ## name(ctype v); \
   ctype ubw_get ## name (LispObject * o);
 
-DEFN_1 (list_p, "list?",o);
-DEFN_1 (list_car, "car",o);
-DEFN_1 (list_cdr, "cdr",o);
+DEFN_1 (list_p, "list?", o);
+DEFN_1 (list_car, "car", o);
+DEFN_1 (list_cdr, "cdr", o);
 
-DEFN_1 (vector_p, "vector?",o);
+DEFN_1 (vector_p, "vector?", o);
 struct vector_t * vector_init(int capacity, int increment);
 int vector_push(struct vector_t * v, struct obj_t o);
 int vector_grow(struct vector_t * v);
@@ -111,5 +106,4 @@ DEFN_1 (float_p, "float?",o);
 DEFN_1 (string_p, "string?",o);
 DEFN_1 (keyword_p, "keyword?",o);
 DEFN_1 (symbol_p, "symbol?",o);
-DEFN_1 (native_func_p, "machine-function?",o);
-DEFN_1 (special_form_p, "special-form?",o);
+DEFN_1 (cfunc_p, "native-function?",o);

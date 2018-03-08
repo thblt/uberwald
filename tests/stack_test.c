@@ -66,18 +66,18 @@ START_TEST (stack_overflow)
 END_TEST
 
 Suite * stack_suite(void) {
-    Suite *s;
-    TCase *tc_core;
+  Suite *s;
+  TCase *tc_core;
 
-    s = suite_create("stack.c");
+  s = suite_create("stack.c");
 
-    /* Core test case */
-    tc_core = tcase_create("Core");
+  /* Core test case */
+  tc_core = tcase_create("Core");
 
-    tcase_add_test(tc_core, stack_order);
-    tcase_add_test(tc_core, stack_underflow);
-    tcase_add_test(tc_core, stack_overflow);
-    suite_add_tcase(s, tc_core);
+  tcase_add_test(tc_core, stack_order);
+  tcase_add_test(tc_core, stack_underflow);
+  tcase_add_test(tc_core, stack_overflow);
+  suite_add_tcase(s, tc_core);
 
-    return s;
+  return s;
 }
