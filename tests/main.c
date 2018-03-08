@@ -2,29 +2,7 @@
 
 #include "check.h"
 
-START_TEST (test0)
-{
-  ck_assert_int_eq(3,14);
-  ck_assert_int_eq(12,3);
-  }
-END_TEST
-
-Suite * test_suite(void)
-{
-    Suite *s;
-    TCase *tc_core;
-
-    s = suite_create("test0");
-
-    /* Core test case */
-    tc_core = tcase_create("Core");
-
-    tcase_add_test(tc_core, test0);
-    suite_add_tcase(s, tc_core);
-
-    return s;
-}
-
+Suite * stack_suite(void);
 
 int main(void)
  {
@@ -32,7 +10,7 @@ int main(void)
     Suite *s;
     SRunner *sr;
 
-    s = test_suite();
+    s = stack_suite();
     sr = srunner_create(s);
 
     srunner_run_all(sr, CK_NORMAL);
