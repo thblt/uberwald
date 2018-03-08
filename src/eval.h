@@ -1,6 +1,6 @@
 #pragma once
 
-#include "defn.h"
+#include "common.h"
 #include "ltypes.h"
 
 /** The current error object */

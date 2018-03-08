@@ -6,11 +6,10 @@
 #include "uberwald.h"
 
 int main (int argc, char ** argv) {
-  printf("Überwald Lisp, v0.0.0.\n");
-
-  if (argc > 1) {
-    read_dispatch(argv[1], 0);
-  }
+  printf("Überwald Lisp machine, v%d.%d.%d.\n",
+         UBW_VERSION_MAJOR,
+         UBW_VERSION_MINOR,
+         UBW_VERSION_PATCH);
 
   char * line = 0x00;
   do {
