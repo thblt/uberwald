@@ -3,6 +3,16 @@
 #include "read.h"
 #include "eval.h"
 
+#define SPACE ' '
+#define UBW_TAB '\t'
+#define UBW_LB '\n'
+
+DEFN_1(ubw_read,,str) {
+    struct ubw_read_state state = {
+      .stack = lostk_new(1024)
+    };
+}
+
 int read_symbol(char * buf, int pos) {
   printf("Symbol!\n");
   return 0;
