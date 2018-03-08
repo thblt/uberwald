@@ -1,16 +1,16 @@
 CC=clang
 CFLAGS=-W -Wall -std=c11 -pedantic
 LDFLAGS=
-SRC = src/cli.c src/eval.c src/eval.c src/ltypes.c src/read.c src/stack.c src/uberwald.c
+SRC = src/eval.c src/eval.c src/ltypes.c src/read.c src/stack.c src/uberwald.c
 OBJ = $(SRC:.c=.o)
 CLISRC = $(SRC) src/cli.c
 CLIOBJ = $(CLISRC:.c=.o)
-TESTSRC=$(wildcard tests/*.c) # $(SRC)
+TESTSRC=$(wildcard tests/*.c) $(SRC)
 TESTOBJ = $(TESTSRC:.c=.o)
 
 EXEC=uberwald
 
-all:
+all: uberwald
 
 uberwald: $(CLIOBJ)
 	$(CC) -o $@ $^ $(LDFLAGS)
@@ -22,4 +22,9 @@ test: $(TESTOBJ)
 	@$(CC) -o $@ -c $< $(CFLAGS)
 
 clean:
-	@rm -rf src/*.o tests/*.o uberwald
+	@rm -rf src/*.o tests/*.o uberwald test
+
+.PHONY: clean check
+
+check: test
+	@./test
