@@ -17,10 +17,6 @@
     return ret;                                         \
   }                                                     \
                                                         \
-  int name ## _length(name ## _t * s) {                 \
-    return s->index;                                    \
-  }                                                     \
-                                                        \
   type * name ## _peek(name ## _t * s) {                \
     return & s->stack[s->index-1];                      \
   }                                                     \
@@ -63,4 +59,4 @@
   }                                                     \
 
 
-IMPL_STACK(lostk, LispObject)
+IMPL_STACK(lostk, ubw_obj)

@@ -1,0 +1,10 @@
+(ns uberwald.baselib
+    (defn (quote-reader _ stream)
+      (list (quote quote) (read stream)))
+
+    (set-macro-character ?' '--uberwald/quote-reader)
+
+    (defn (keyword-reader _ stream)
+      (list (quote anything->keyword) (read stream)))
+
+    (set-macro-character ?: '--uberwald/keyword-reader))

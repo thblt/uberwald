@@ -2,9 +2,49 @@
 
 Überwald is a simple Lisp dialect and interpreter I'm writing to learn about Lisps, interpreters, and writing C code that doesn't explode.
 
+* The interpreter
 
+** Components
+
+ - =object.c= :: define the =ubw_obj= type.  =ubw_obj= is a tagged union and stores every possible primitive type;
+ - =read.c= :: read an object from a sequence of characters;
+ - =eval.c= :: evaluate a lisp form, given an environment;
+ - =env.c= :: provide an environment, /ie/ recursive associative arrays for binding values to symbols;
+ - =store.c= :: manage in-memory storage of objects of various types:
+   - regular objects (=ubw_obj=) on a preallocated (and extensible) heap;
+   - string values;
+   - symbol names.
+
+** Memory management
+
+*** Garbage collection
+
+Like most LISPs, Überwald is garbage collected.  Marking of unreachable objects is performed in multiple ways:
+
+1. *Garbage-collecting environments*
+
+   - symbols are bound in environments;
+   - functions hold a reference to the environment they were defined in (because of lexical scoping);
+   - environments have a reference counter;
+   - when a function is garbage-collected, it decreases the reference count of the environment it was defined in by one;
+   - when the reference count of a given environment reaches zero, the environment is marked for garbage collection.
+
+2. *Garbage-collecting symbols with their environments*
+
+   - whenever an environment gets collected, all the values of symbols bound inside it are destroyed, recursively if needed.
+
+3. *Garbage collecting overwritten values*
+
+   - whenever a symbol is =(set)=, its previous value is recursively marked as destroyed.
+
+The garbage collection phase in itself consists of updating the list of available heap space.  This is an array of pair (index, size).
+
+*** AST allocation
+
+When Überwald code is =(read)=, the AST is by default stored on a special space called ephemeral storage, which gets deleted each time a complete form has been evaluated.  Some special forms, though, will instruct the reader to store emitted AST on the heap instead.  Such special forms are =(define)= and =(set)=.  This prevents unnecessary copies.  Ephemeral storage is pre-allocated before reading start as a =ubw_vector= of =ubw_obj=.
 
 * The language
+
 ** General specifications
 
  - [[https://en.wikipedia.org/wiki/Common_Lisp#The_function_namespace][LISP-1]] (a single namespace for functions and variables)

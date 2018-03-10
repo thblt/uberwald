@@ -1,3 +1,6 @@
+/** @file
+ * @brief Command-line interface */
+
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -5,15 +8,20 @@
 
 #include "uberwald.h"
 
-int main (int argc, char ** argv) {
-  printf("Überwald Lisp machine, v%d.%d.%d.\n",
+/** @brief Main function */
+int main () {
+  printf("Überwald Lisp machine v%d.%d.%d.\n",
+
          UBW_VERSION_MAJOR,
          UBW_VERSION_MINOR,
-         UBW_VERSION_PATCH);
+         UBW_VERSION_PATCH,
+         sizeof(ubw_obj)
+         );
 
   char * line = 0x00;
-  do {
-    line = readline("> ");
+  while (NULL != (line = readline("> "))) {
     ubw_read(line);
-  } while (NULL != line);
+  }
+
+  return EXIT_SUCCESS;
 }

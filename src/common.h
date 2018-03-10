@@ -1,15 +1,22 @@
 #pragma once
 
+#include <stdint.h>
+
 #define UBW_VERSION_MAJOR 0
 #define UBW_VERSION_MINOR 0
-#define UBW_VERSION_PATCH 0
+#define UBW_VERSION_PATCH 1
 
-#define DEFN_0(name, lisp_name) LispObject * name ()
-#define DEFN_1(name, lisp_name, arg0) LispObject * name (LispObject * arg0)
-#define DEFN_2(name, lisp_name, arg0, arg1) LispObject * name (LispObject * arg0, LispObject * arg1)
-#define DEFN_3(name, lisp_name, arg0, arg1, arg2) LispObject * name (LispObject * arg0, LispObject * arg1, LispObject * arg2)
-#define DEFN_4(name, lisp_name, arg0, arg1, arg2, arg3) LispObject * name (LispObject * arg0, LispObject * arg1, LispObject * arg2, LispObject * arg3)
-#define DEFN_MANY(name, lisp_name) LispObject * name (LispObject * args)
+#define DEFN //
 
-#define UBW_INTEGER_TYPE long int
-#define UBW_FLOAT_TYPE double
+typedef long int ubw_int;
+typedef double ubw_float;
+typedef int_least32_t ubw_char;
+typedef int ubw_bool;
+
+#define UBW_MAX_SYMBOL_LENGTH 512
+
+#ifdef _UBERWALD_INTERNALS
+typedef ubw_bool bool;
+#define true 1
+#define false 0
+#endif
