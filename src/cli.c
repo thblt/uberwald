@@ -20,7 +20,9 @@ int main () {
 
   char * line = 0x00;
   while (NULL != (line = readline("> "))) {
-    ubw_read(line);
+    ubw_reader * r = ubw_reader_new(NULL, line);
+    ubw_read(r);
+    free(r);
   }
 
   return EXIT_SUCCESS;

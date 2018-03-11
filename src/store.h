@@ -18,10 +18,14 @@ typedef struct {
 
 /** @brief intern a new or existing symbol.
 
-    This will return the unique
-    identifier of that symbol.  Symbols are stored as a sorted array,
-    so lookup is in Ο(log n), insertion may be a bit more expansive
-    because we may have to move data in memory around. */
+    This will return the unique identifier of that symbol.  Symbols
+    are stored as a sorted array, so lookup is in Ο(log n), insertion
+    may be a bit more expansive because we may have to move data in
+    memory around.
+
+    @param name The symbol name as a null-terminated Überwald string.
+
+*/
 int ubw_intern(ubw_char * name);
 
 /** return the name of a symbol.  This requires complete traversal of
@@ -37,22 +41,41 @@ ubw_char * ubw_symbol_name(ubw_obj * s);
     heap, etc.  For now, it's a dummy representation so that the rest
     compiles. */
 typedef struct {
-  ubw_symbol * symbols;
-  int symb_count,
-    symb_capac;
   ubw_obj * heap;
+  int heap_c,
+    heap_sz;
+  ubw_symb * symt;
+  int symt_c,
+    symt_sz;
 } ubw_store;
 
-/** @brief Allocate a new store */
-ubw_store * ubw_store_create();
+/** @brief Allocate a new store.
+  *
+  * @param heap_capac The base heap capacity.  If zero, heap isn't
+  * allocated at all and pointer will be NULL.
+  *
+  * @param symt_capac Symbol table base capacity.  If zero, symbol
+  * tables aren't allocated at all and pointer will be NULL. */
+ubw_store * ubw_store_create(int heap_sz, int symt_sz);
 
-/** Allocate a new object on the heap and return a pointer to this
-    object.  To create a new virtual machine, see ubw_store_create() */
+void ubw_store_init(ubw_store *s, int heap_sz, int symt_sz);
+
+/** @brief Allocate a new object on the heap.
+ *
+  * Allocate a new object on the heap.and return a pointer to this
+  * object.  To create a new virtual machine, see
+  * ubw_store_create() */
 struct ubw_obj * ubw_store_new(ubw_store *s);
 
-/** Allocate continuous space on the heap for n objects objects and
+/** @brief Allocate continuous space on the heap for n objects objects and
     return a pointer to the first object. */
 struct ubw_obj * ubw_store_alloc(ubw_store *s, int n);
+
+/** @brief Copy an object onto the store. */
+struct ubw_obj * ubw_copy(ubw_store *s, ubw_obj *o);
+
+/** @brief Move an object onto the store. */
+struct ubw_obj * ubw_move(ubw_obj * o);
 
 /** Return the true-ish object */
 inline ubw_obj * ubw_store_t(ubw_store *s) {

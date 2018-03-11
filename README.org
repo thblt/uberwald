@@ -43,6 +43,12 @@ The garbage collection phase in itself consists of updating the list of availabl
 
 When Überwald code is =(read)=, the AST is by default stored on a special space called ephemeral storage, which gets deleted each time a complete form has been evaluated.  Some special forms, though, will instruct the reader to store emitted AST on the heap instead.  Such special forms are =(define)= and =(set)=.  This prevents unnecessary copies.  Ephemeral storage is pre-allocated before reading start as a =ubw_vector= of =ubw_obj=.
 
+** Symbols and keywords
+
+Symbols and keywords are internally represented as integers, and a associative map is defined in store.h.  When reading a symbol, the reader interns it by calling =ubw_intern= with its name, and receives the integer that uniquely identifies it.  Internally, one or two lookup tables are kept, one to associate names with identifiers, the other
+
+Keywords are implemented in exactly the same way, the only difference is in evaluation (keywords evaluate to themselves).
+
 * The language
 
 ** General specifications

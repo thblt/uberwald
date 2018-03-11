@@ -1,5 +1,6 @@
 #pragma once
 
+#include "common.h"
 #include "object.h"
 
 #define DECL_STACK(name, type)                        \
@@ -17,8 +18,8 @@
   type * name ## _safe_peek(name ## _t * s);          \
   type * name ## _pop(name ## _t * s);                \
   type * name ## _safe_pop(name ## _t * s);           \
-  void name ## _push(name ## _t * s, type * o);       \
-  void name ## _safe_push(name ## _t * s, type * o);  \
+  type * name ## _push(name ## _t * s, type * o);       \
+  type * name ## _safe_push(name ## _t * s, type * o);  \
                                                       \
   inline int name ## _length(name ## _t * s) {        \
     return s->index;                                  \
