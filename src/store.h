@@ -51,10 +51,10 @@ typedef struct {
 
 /** @brief Allocate a new store.
   *
-  * @param heap_capac The base heap capacity.  If zero, heap isn't
+  * @param heap_sz The base heap capacity.  If zero, heap isn't
   * allocated at all and pointer will be NULL.
   *
-  * @param symt_capac Symbol table base capacity.  If zero, symbol
+  * @param symt_sz Symbol table base capacity.  If zero, symbol
   * tables aren't allocated at all and pointer will be NULL. */
 ubw_store * ubw_store_create(int heap_sz, int symt_sz);
 
