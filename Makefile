@@ -1,7 +1,7 @@
 CC=clang
 CFLAGS=-W -Wall -std=c11 -pedantic -D_UBERWALD_INTERNALS
 LDFLAGS=-lreadline
-SRC = src/eval.c src/object.c src/read.c src/stack.c
+SRC = src/eval.c src/object.c src/read.c src/stack.c src/store.c
 OBJ = $(SRC:.c=.o)
 CLISRC = $(SRC) src/cli.c
 CLIOBJ = $(CLISRC:.c=.o)
