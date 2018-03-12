@@ -1,0 +1,12 @@
+#define UBW_VERSION_MAJOR @UBW_VERSION_MAJOR@
+#define UBW_VERSION_MINOR @UBW_VERSION_MINOR@
+#define UBW_VERSION_PATCH @UBW_VERSION_PATCH@
+
+#define UBW_VERSION_STRING "@UBW_VERSION_MAJOR@.@UBW_VERSION_MINOR@.@UBW_VERSION_PATCH@"
+
+typedef long int ubw_int;
+typedef double ubw_float;
+typedef int_least32_t ubw_char;
+typedef int ubw_symbid;
+
+#define UBW_MAX_SYMBOL_LENGTH 512

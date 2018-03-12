@@ -11,12 +11,9 @@
 /** @brief Main function */
 int main () {
   printf("Überwald Lisp machine v%d.%d.%d.\n",
-
          UBW_VERSION_MAJOR,
          UBW_VERSION_MINOR,
-         UBW_VERSION_PATCH,
-         sizeof(ubw_obj)
-         );
+         UBW_VERSION_PATCH);
 
   char * line = 0x00;
   while (NULL != (line = readline("> "))) {
