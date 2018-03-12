@@ -12,8 +12,7 @@ set (PROJECT_SOURCE_DIR src)
 
 configure_file (
 	"${PROJECT_SOURCE_DIR}/config.h.in"
-	"${PROJECT_BINARY_DIR}/config.h"
-  )
+	"${PROJECT_BINARY_DIR}/config.h")
 
 include_directories (
 	"${PROJECT_SOURCE_DIR}"
