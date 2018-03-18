@@ -37,6 +37,7 @@ enum ubw_objtype {
 
   INTEGER, //!< Integer
   FLOAT, //!< Float
+  CHAR, //!< Character
   STRING, //!< String
 
   SYMBOL, //!< Regular symbol
@@ -98,9 +99,15 @@ struct ubw_obj {
 bool ubw_list_p (ubw_obj *o);
 /** @brief Initialize a new list. */
 ubw_obj * ubw_list_init (ubw_obj *o, ubw_obj *car, ubw_obj *cdr);
-ubw_obj * ubw_list_car (ubw_obj *list);
-ubw_obj * ubw_list_cdr (ubw_obj *list);
 #define ubw_list_new(store, car, cdr) ubw_list_init(ubw_store_new(store), car, cdr)
+
+inline ubw_obj * ubw_list_car (ubw_obj *list) {
+  return list->data.list.car;
+}
+
+inline ubw_obj * ubw_list_cdr (ubw_obj *list) {
+  return list->data.list.cdr;
+}
 
 // * Vectors
 bool ubw_vector_p (ubw_obj *o);
@@ -114,14 +121,19 @@ bool ubw_obj2bool(ubw_obj * o);
 // * Integers
 bool ubw_int_p (ubw_obj *o);
 ubw_obj * ubw_int_init (ubw_obj *o, ubw_int v);
-int ubw_int_unbox (ubw_obj *o);
-#define ubw_int_new(store, val) ubw_int_init(ubw_store_new(store), v)
+#define ubw_int_new(store, val) ubw_int_init(ubw_store_new(store), val)
+inline ubw_int ubw_int_unbox (ubw_obj *o) {
+  return o->data.integer;
+}
+
 
 // * Floats
 bool ubw_float_p (ubw_obj *o);
 ubw_obj * ubw_float_init (ubw_obj *o, ubw_float v);
-float ubw_float_unbox (ubw_obj *o);
 #define ubw_float_new(store, val) ubw_float_init(ubw_store_new(store), v)
+inline ubw_float ubw_float_unbox (ubw_obj *o) {
+  return o->data.fpn;
+}
 
 bool ubw_symbol_p (ubw_obj *o);
 ubw_obj * ubw_symbol_init (ubw_obj *o, ubw_symbid v);

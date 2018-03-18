@@ -5,8 +5,9 @@
 
 #pragma once
 
+#include "common.h"
 #include "object.h"
-#include "stack.h"
+#include "containers.h"
 
 // * Symbols
 

@@ -2,7 +2,8 @@
 
 #include "check.h"
 
-Suite * stack_suite(void);
+void test_object_c(Suite*);
+void test_stack_c(Suite*);
 
 int main(void)
  {
@@ -10,10 +11,14 @@ int main(void)
     Suite *s;
     SRunner *sr;
 
-    s = stack_suite();
+    s = suite_create("Überwald");
+
     sr = srunner_create(s);
 
-    srunner_run_all(sr, CK_NORMAL);
+    test_object_c(s);
+    test_stack_c(s);
+
+    srunner_run_all(sr, CK_VERBOSE);
     number_failed = srunner_ntests_failed(sr);
     srunner_free(sr);
     return (number_failed == 0) ? EXIT_SUCCESS : EXIT_FAILURE;

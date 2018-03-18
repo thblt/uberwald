@@ -1,83 +1,183 @@
-#include <check.h>
+#include "check.h"
 
-#include "../src/stack.h"
+#include "../src/containers.h"
+#include "../src/object.h"
+#include "../src/store.h"
 
-START_TEST (stack_order)
+START_TEST (length_los)
 {
-  lostk_t s;
-  lostk_init(&s, 16);
+  ubw_los s;
+  ubw_los_init(&s, 256, NULL);
 
-  ubw_obj *lia = ubw_int_new(1),
-    *lib = ubw_int_new(2),
-    *lic = ubw_int_new(3),
-    *lid = ubw_int_new(4),
-    *lie = ubw_int_new(5);
+  ubw_obj o;
+  ubw_int_init(&o, 527);
 
-  lostk_push(&s, lia);
-  lostk_push(&s, lib);
-  lostk_push(&s, lic);
-  lostk_push(&s, lid);
-  lostk_push(&s, lie);
+  for (int i=1; i<257; i++) {
+    ubw_los_push(&s, &o);
+    ck_assert_int_eq(i,
+                     ubw_los_length(&s));
 
-  ck_assert_int_eq (5, ubw_int_unbox(lostk_peek(&s)));
-  ck_assert_int_eq (5, ubw_int_unbox(lostk_peek(&s)));
-  ck_assert_int_eq (5, ubw_int_unbox(lostk_peek(&s)));
-  ck_assert_int_eq (5, ubw_int_unbox(lostk_pop(&s)));
-  ck_assert_int_eq (4, ubw_int_unbox(lostk_pop(&s)));
-  lostk_push(&s, lia);
-  ck_assert_int_eq (1, ubw_int_unbox(lostk_pop(&s)));
-  ck_assert_int_eq (3, ubw_int_unbox(lostk_pop(&s)));
-  ck_assert_int_eq (2, ubw_int_unbox(lostk_pop(&s)));
-  ck_assert_int_eq (1, ubw_int_unbox(lostk_pop(&s)));
+    ck_assert_int_eq(i,
+                     s.h);
+  }
+
+  for (int i=255; i>=0; i--) {
+    ubw_los_pop(&s);
+    ck_assert_int_eq(i,
+                     ubw_los_length(&s));
+
+    ck_assert_int_eq(i,
+                     s.h);
+  }
+
+  free(s.d);
 }
 END_TEST
 
-START_TEST (stack_underflow)
+START_TEST (sanity_los_peek_and_pop)
 {
-  lostk_t s;
-  lostk_init(&s, 16);
+  ubw_los s0, s1, s2;
+  ubw_los_init(&s0, 256, NULL);
+  ubw_los_init(&s1, 256, NULL);
+  ubw_los_init(&s2, 256, NULL);
 
-  ck_assert_int_eq(s.underflow, 0);
-  lostk_safe_peek(&s);
-  ck_assert_int_eq(s.underflow, 1);
-  lostk_safe_peek(&s);
-  ck_assert_int_eq(s.underflow, 2);
+  // Just in case things get crazy.
+  ck_assert_ptr_ne(s0.d, s1.d);
+
+  ubw_obj o;
+
+  for (int i=0; i<256; i++) {
+    ubw_int_init(&o, i);
+
+    ubw_los_push(&s0, &o);
+    ubw_los_push(&s1, &o);
+    ubw_los_push(&s2, &o);
+
+    ck_assert_int_eq(i+1, s0.h);
+    ck_assert_int_eq(1, s1.h);
+    ck_assert_int_eq(1, s2.h);
+
+    ck_assert_ptr_eq(ubw_los_peek(&s0),
+                     &(s0.d[i]));
+
+    ck_assert_ptr_eq(ubw_los_fpeek(&s0),
+                     &s0.d[i]);
+
+    ck_assert_ptr_eq(ubw_los_pop(&s1),
+                     s1.d);
+
+    ck_assert_ptr_eq(
+                     ubw_los_fpop(&s2),
+                     s2.d);
+  }
+
+  free (s0.d);
+  free (s1.d);
+  free (s2.d);
 }
 END_TEST
 
-START_TEST (stack_overflow)
+START_TEST (integrity_los)
 {
-  lostk_t s;
-  lostk_init(&s, 4);
+  ubw_los s;
+  ubw_los_init(&s, 512, NULL);
 
-  lostk_safe_push(&s, ubw_int_new(0));
-  ck_assert_int_eq(s.overflow, 0);
-  lostk_safe_push(&s, ubw_int_new(0));
-  ck_assert_int_eq(s.overflow, 0);
-  lostk_safe_push(&s, ubw_int_new(0));
-  ck_assert_int_eq(s.overflow, 0);
-  lostk_safe_push(&s, ubw_int_new(0));
-  ck_assert_int_eq(s.overflow, 0);
-  lostk_safe_push(&s, ubw_int_new(0));
-  ck_assert_int_eq(s.overflow, 1);
-  lostk_safe_push(&s, ubw_int_new(0));
-  ck_assert_int_eq(s.overflow, 2);
+  ubw_obj o;
+
+  for (int i=0; i<256; i++) {
+    ubw_int_init(&o, i);
+    ubw_los_push(&s, &o);
+    ck_assert_int_eq(
+                     //ubw_int_unbox(ubw_los_peek(&s)),
+                     ubw_int_unbox(&s.d[i]),
+                     i);
+      }
+
+  free (s.d);
 }
 END_TEST
 
-Suite * stack_suite(void) {
-  Suite *s;
-  TCase *tc_core;
+START_TEST (ordering_los)
+{
+  ubw_los s;
+  ubw_los_init(&s, 16, NULL);
 
-  s = suite_create("stack.c");
+  ubw_obj o0, o1, o2, o3, o4;
 
-  /* Core test case */
-  tc_core = tcase_create("Core");
+  ubw_int_init(&o0, 11);
+  ubw_int_init(&o1, 22);
+  ubw_int_init(&o2, 33);
+  ubw_int_init(&o3, 44);
+  ubw_int_init(&o4, 55);
 
-  tcase_add_test(tc_core, stack_order);
-  tcase_add_test(tc_core, stack_underflow);
-  tcase_add_test(tc_core, stack_overflow);
-  suite_add_tcase(s, tc_core);
+  ubw_los_push(&s, &o0);
+  ck_assert_int_eq (11, ubw_int_unbox(ubw_los_peek(&s)));
+  ubw_los_push(&s, &o1);
+  ubw_los_push(&s, &o2);
+  ubw_los_push(&s, &o3);
+  ubw_los_push(&s, &o4);
 
-  return s;
+  ck_assert_int_eq (55, ubw_int_unbox(ubw_los_peek(&s)));
+  ck_assert_int_eq (55, ubw_int_unbox(ubw_los_peek(&s)));
+  ck_assert_int_eq (55, ubw_int_unbox(ubw_los_peek(&s)));
+  ck_assert_int_eq (55, ubw_int_unbox(ubw_los_pop(&s)));
+  ck_assert_int_eq (44, ubw_int_unbox(ubw_los_pop(&s)));
+  ubw_los_push(&s, &o4);
+  ck_assert_int_eq (55, ubw_int_unbox(ubw_los_pop(&s)));
+  ck_assert_int_eq (33, ubw_int_unbox(ubw_los_pop(&s)));
+  ck_assert_int_eq (22, ubw_int_unbox(ubw_los_pop(&s)));
+  ck_assert_int_eq (11, ubw_int_unbox(ubw_los_pop(&s)));
+
+  free(s.d);
+}
+END_TEST
+
+START_TEST (underflow_los)
+{
+  ubw_los s;
+  ubw_los_init(&s, 16, NULL);
+
+  ubw_obj o;
+  ubw_int_init(&o, 527);
+
+  ubw_los_push(&s, &o);
+
+  ck_assert_ptr_ne(NULL, ubw_los_pop(&s));
+  ck_assert_ptr_eq(NULL, ubw_los_peek(&s));
+
+  free(s.d);
+}
+
+END_TEST
+
+START_TEST (overflow_los)
+{
+  ubw_los s;
+  ubw_los_init(&s, 4, NULL);
+
+  ubw_obj o;
+  ubw_int_init(&o, 311);
+
+  ck_assert_ptr_ne(NULL, ubw_los_push(&s, &o));
+  ck_assert_ptr_ne(NULL, ubw_los_push(&s, &o));
+  ck_assert_ptr_ne(NULL, ubw_los_push(&s, &o));
+  ck_assert_ptr_ne(NULL, ubw_los_push(&s, &o));
+  // Overflow here
+  ck_assert_ptr_eq(NULL, ubw_los_push(&s, &o));
+
+  free(s.d);
+}
+END_TEST
+
+void test_stack_c(Suite *s) {
+  TCase *tc = tcase_create("stack.c");
+
+  tcase_add_test(tc, length_los);
+  tcase_add_test(tc, sanity_los_peek_and_pop);
+  tcase_add_test(tc, integrity_los);
+  tcase_add_test(tc, ordering_los);
+  tcase_add_test(tc, overflow_los);
+  tcase_add_test(tc, underflow_los);
+
+  suite_add_tcase(s, tc);
 }
