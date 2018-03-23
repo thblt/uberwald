@@ -1,7 +1,4 @@
-#include "check.h"
-
-#include "../src/object.h"
-#include "../src/store.h"
+#include "ubwtest.h"
 
 START_TEST (los_pred_sanity)
 {
@@ -36,11 +33,7 @@ START_TEST (los_pred_sanity)
   // ck_assert(ubw_keyword_p(&obj[7]));
 
   // ck_assert(ubw_cfunc_p(&obj[8]));
-
-
-
 }
-
 END_TEST
 
 START_TEST (int_sanity)
@@ -50,11 +43,15 @@ START_TEST (int_sanity)
 }
 END_TEST
 
-void test_object_c(Suite *s) {
-  TCase *tc = tcase_create("object.c");
+Suite * object_c_suite() {
+  Suite *s = suite_create("object.c");
+  TCase *tc;
 
+  tc = ubw_tcase(s, "Common");
   tcase_add_test(tc, los_pred_sanity);
+
+  tc = ubw_tcase(s, "Integers");
   tcase_add_test(tc, int_sanity);
 
-  suite_add_tcase(s, tc);
+  return s;
 }

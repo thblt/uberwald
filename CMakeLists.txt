@@ -89,7 +89,8 @@ include_directories(${CHECK_INCLUDE_DIRS})
 add_executable(TestSuite
   ${UBW_TESTS_SOURCE_DIR}/main.c
   ${UBW_TESTS_SOURCE_DIR}/stack_test.c
-  ${UBW_TESTS_SOURCE_DIR}/object_test.c)
+  ${UBW_TESTS_SOURCE_DIR}/object_test.c
+  ${UBW_TESTS_SOURCE_DIR}/read_test.c)
 
 target_link_libraries(TestSuite LibUberwald)
 target_link_libraries(TestSuite ${CHECK_LIBRARIES})

@@ -1,8 +1,4 @@
-#include "check.h"
-
-#include "../src/containers.h"
-#include "../src/object.h"
-#include "../src/store.h"
+#include "ubwtest.h"
 
 START_TEST (length_los)
 {
@@ -169,15 +165,17 @@ START_TEST (overflow_los)
 }
 END_TEST
 
-void test_stack_c(Suite *s) {
-  TCase *tc = tcase_create("stack.c");
+Suite * stack_c_suite() {
+  Suite *s = suite_create("stack.c");
+  TCase *tc;
 
+  tc = ubw_tcase(s, "LispObject");
   tcase_add_test(tc, length_los);
   tcase_add_test(tc, sanity_los_peek_and_pop);
-  tcase_add_test(tc, integrity_los);
-  tcase_add_test(tc, ordering_los);
   tcase_add_test(tc, overflow_los);
   tcase_add_test(tc, underflow_los);
+  tcase_add_test(tc, ordering_los);
+  tcase_add_test(tc, integrity_los);
 
-  suite_add_tcase(s, tc);
+  return s;
 }

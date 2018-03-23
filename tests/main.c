@@ -1,22 +1,19 @@
 #include <stdlib.h>
 
-#include "check.h"
+#include "ubwtest.h"
 
-void test_object_c(Suite*);
-void test_stack_c(Suite*);
+Suite* object_c_suite();
+Suite* stack_c_suite();
+Suite* read_c_suite();
 
 int main(void)
  {
     int number_failed;
-    Suite *s;
     SRunner *sr;
 
-    s = suite_create("Überwald");
-
-    sr = srunner_create(s);
-
-    test_object_c(s);
-    test_stack_c(s);
+    sr = srunner_create(object_c_suite());
+    srunner_add_suite(sr, stack_c_suite());
+    srunner_add_suite(sr, read_c_suite());
 
     srunner_run_all(sr, CK_VERBOSE);
     number_failed = srunner_ntests_failed(sr);
