@@ -15,8 +15,8 @@ include_directories(${UBW_LIB_SOURCE_DIR})
 include_directories(${UBW_CLI_SOURCE_DIR})
 
 set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -std=c11 -pedantic")
-set (CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS} -DDEBUG")
 add_definitions(-DUBW_INTERNALS)
+set (CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -DDEBUG")
 
 include_directories (
 	"${PROJECT_SOURCE_DIR}"
