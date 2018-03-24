@@ -7,7 +7,7 @@
 #pragma once
 
 #include "object.h"
-#include "containers.h"
+#include "stack.h"
 #include "store.h"
 
 /** @brief The size of the reader stack.

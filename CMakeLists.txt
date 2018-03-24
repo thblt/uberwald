@@ -30,44 +30,29 @@ configure_file (
 	"${PROJECT_SOURCE_DIR}/src/config.h.in"
 	"${PROJECT_BINARY_DIR}/config.h")
 
-# ** Ugly pseudo-metaprogramming pre-build script #
 
-set (UBW_CONTAINERS_SRC ${PROJECT_BINARY_DIR}/containers.decl.h
-  ${PROJECT_BINARY_DIR}/containers.impl.h)
 
-add_custom_command(
-  OUTPUT ${UBW_CONTAINERS_SRC}
-  COMMAND ${UBW_LIB_SOURCE_DIR}/mkcontainers.sh ${UBW_LIB_SOURCE_DIR} ${PROJECT_BINARY_DIR}
-  COMMENT "Generating containers source code..."
-  WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-  DEPENDS ${UBW_LIB_SOURCE_DIR}/mkcontainers.sh
-  ${UBW_LIB_SOURCE_DIR}/tpl/stack.tpl.h
-  ${UBW_LIB_SOURCE_DIR}/tpl/stack.tpl.c
-  ${UBW_LIB_SOURCE_DIR}/tpl/vector.tpl.h
-  ${UBW_LIB_SOURCE_DIR}/tpl/vector.tpl.c
-  ${UBW_LIB_SOURCE_DIR}/tpl/queue.tpl.h
-  ${UBW_LIB_SOURCE_DIR}/tpl/queue.tpl.c)
 
 # * Targets
 
 # ** Library
 
 set (UBW_LIB_SOURCES
-  ${UBW_LIB_SOURCE_DIR}/containers.c
   ${UBW_LIB_SOURCE_DIR}/eval.c
   ${UBW_LIB_SOURCE_DIR}/object.c
   ${UBW_LIB_SOURCE_DIR}/print.c
   ${UBW_LIB_SOURCE_DIR}/read.c
+  ${UBW_LIB_SOURCE_DIR}/stack.c
   ${UBW_LIB_SOURCE_DIR}/store.c)
 
 set (UBW_LIB_HEADERS
   ${UBW_LIB_SOURCE_DIR}/common.h
-  ${UBW_LIB_SOURCE_DIR}/containers.h
   ${UBW_LIB_SOURCE_DIR}/env.h
   ${UBW_LIB_SOURCE_DIR}/eval.h
   ${UBW_LIB_SOURCE_DIR}/object.h
   ${UBW_LIB_SOURCE_DIR}/print.h
   ${UBW_LIB_SOURCE_DIR}/read.h
+  ${UBW_LIB_SOURCE_DIR}/stack.h
   ${UBW_LIB_SOURCE_DIR}/store.h
   ${UBW_LIB_SOURCE_DIR}/symbol.h
   ${UBW_LIB_SOURCE_DIR}/uberwald.h

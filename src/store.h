@@ -7,7 +7,6 @@
 
 #include "common.h"
 #include "object.h"
-#include "containers.h"
 
 // * Symbols
 

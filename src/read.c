@@ -1,6 +1,5 @@
 #include <stdio.h>
 
-#include "containers.h"
 #include "object.h"
 #include "read.h"
 #include "store.h"
