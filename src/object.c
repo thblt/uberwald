@@ -20,7 +20,7 @@ bool ubw_obj2bool(ubw_obj * o) {
 IMPL_TYPE_BASE(list, ubw_list, LIST)
 ubw_obj * ubw_list_init(ubw_obj *o, ubw_obj *car, ubw_obj *cdr) {
   o->type = LIST;
-  o->data.list.cdr = car;
+  o->data.list.car = car;
   o->data.list.cdr = cdr;
   return o;
 }
