@@ -5,72 +5,59 @@
 #define TABSTOP 4
 
 void print(ubw_obj *o) {
-  doprint(o, 0, false);
+  print_(o, false);
+  printf("\n");
 }
 
-void print_indent(int depth) {
-  for(int i=0; i==TABSTOP*depth; i++) {
-    printf(" ");
-  }
-}
-
-void doprint(ubw_obj *o, int depth, bool cdr) {
+void print_(ubw_obj *o, bool cdr) {
 
   if (NULL == o) {
-    printf("nil\n");
     return;
   }
 
   switch (o->type) {
 
   case LIST:
-    printf("\n");
-    if (!cdr) {
-      print_indent(depth);
-      printf("(\n");
+    if (NULL == ubw_list_car(o) && NULL == ubw_list_cdr(o))
+      printf(cdr ? "" : "nil ");
+    else {
+      if (!cdr) printf("( ");
+      print_(ubw_list_car(o), false);
+      print_(ubw_list_cdr(o), true);
+      if (!cdr) printf(") ");
     }
-    printf("BEFCAR");
-    doprint(ubw_list_car(o), depth+1, false);
-    printf("AFTCAR\n");
-    doprint(ubw_list_cdr(o), depth+1, true);
-    if (!cdr) {
-      printf(")\n");
-    }
+
     break;
 
   case INTEGER:
-    printf("%li", ubw_int_unbox(o));
+    printf("%li ", ubw_int_unbox(o));
     break;
 
   case SYMBOL:
-    printf("symbol");
+    printf("symbol ");
     break;
 
   case KEYWORD:
-    printf(":keyword");
+    printf(":keyword ");
     break;
 
   case VECTOR:
-    printf("VECTOR-NOREPR");
+    printf("VECTOR-NOREPR ");
     break;
 
   case FLOAT:
-    printf("FLOAT-NOREPR");
+    printf("FLOAT-NOREPR ");
     break;
 
   case STRING:
-    printf("STRING-NOREPR");
+    printf("STRING-NOREPR ");
     break;
   case CFUNC:
-    printf("CFUNC-NOREPR");
+    printf("CFUNC-NOREPR ");
     break;
   case _DELETED:
-    printf("DELETED=NOREPR");
+    printf("DELETED=NOREPR ");
     break;
    default:
-     printf("[ABNORMAL TAG %d]", o->type);
-  }
-  if (!depth)
-    (printf("\n"));
-  fflush(stdout);
-}
+     printf("[?????? %d] ", o->type);
+  }}
