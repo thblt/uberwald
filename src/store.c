@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <stdio.h>
 
 #include "store.h"
 #include "object.h"
@@ -28,7 +29,9 @@ void ubw_store_init(ubw_store *s, int heap_sz, int symt_sz) {
 
 struct ubw_obj * ubw_store_new(ubw_store *store) {
   // @FIXME This is a test implementation.
-  return malloc(sizeof(ubw_obj));
+  ubw_obj *ret = malloc(sizeof(ubw_obj));
+  //printf("Allocated at %p\n", ret);
+  return ret;
 }
 
 struct ubw_obj * ubw_store_malloc(ubw_store *store, int n) {

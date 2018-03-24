@@ -42,10 +42,9 @@ void ubw_read(ubw_reader *r) {
 
   while (true) {
 
-    printf("Reading at position %d\n", r->pos);
-
     o = NULL;
     next_token(r, &t);
+
     switch(t.type) {
     case TK_BOL:
       o = ubw_store_new(r->store);
@@ -67,7 +66,7 @@ void ubw_read(ubw_reader *r) {
 
     case TK_OTHER:
       o = ubw_store_new(r->store);
-      ubw_int_init(o, 153);
+      ubw_symbol_init(o, 1);
       break;
 
     case TK_END:
@@ -96,12 +95,13 @@ void ubw_read(ubw_reader *r) {
       assert(ubw_stack_length(&r->stack));
 
       head = ubw_stack_fpeek(&r->stack);
+      assert(ubw_list_p(head));
 
       if (NULL == ubw_list_car(head)) {
         head->data.list.car = o;
       } else {
-        // cdr MUST be null
         assert(NULL == ubw_list_cdr(head));
+
         newhead = ubw_store_new(r->store);
         ubw_list_init(newhead, o, NULL);
         head->data.list.cdr = newhead;
@@ -136,7 +136,7 @@ void next_token(ubw_reader *r, ubw_token *t) {
       return;
 
     case 0x00:
-      t->type = EOF;
+      t->type = TK_END;
       return;
 
     case ' ':
