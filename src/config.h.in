@@ -4,9 +4,12 @@
 
 #define UBW_VERSION_STRING "@UBW_VERSION_MAJOR@.@UBW_VERSION_MINOR@.@UBW_VERSION_PATCH@"
 
-typedef long int ubw_int;
-typedef double ubw_float;
-typedef int_least32_t ubw_char;
+typedef @UBW_LISP_TYPES_INT_TYPE@ ubw_int;
+typedef @UBW_LISP_TYPES_FLOAT_TYPE@ ubw_float;
+typedef @UBW_LISP_TYPES_CHAR_TYPE@ ubw_char;
 typedef int ubw_symbid;
 
-#define UBW_MAX_SYMBOL_LENGTH 512
+#define UBW_LISP_MAX_SYMBOL_LENGTH @UBW_LISP_MAX_SYMBOL_LENGTH@
+
+#define UBW_READER_STACK_SIZE @UBW_READER_STACK_SIZE@
+#define UBW_READER_STORE_SIZE @UBW_READER_STORE_SIZE@

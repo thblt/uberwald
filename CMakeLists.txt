@@ -33,10 +33,34 @@ configure_file (
 
 # ** Library
 
-# *** Consfiguration
+# *** Configuration
+
+# **** Reader
 
 set(UBW_READER_STACK_SIZE 256 CACHE STRING
   "The default stack length of the reader.  This is equivalent to the maximum list nesting level.")
+
+set(UBW_READER_STORE_SIZE 1024 CACHE STRING
+  "The default size for the reader's ephemeral store. ")
+
+# **** Lisp
+
+set(UBW_LISP_TYPES_INT_TYPE "long int" CACHE string
+  "C type of Lisp integers")
+
+set(UBW_LISP_TYPES_FLOAT_TYPE "double" CACHE string
+  "C type of Lisp floats")
+
+set(UBW_LISP_TYPES_CHAR_TYPE "int_least32_t" CACHE string
+  "C type of Lisp chars.")
+
+set(UBW_LISP_MAX_SYMBOL_LENGTH 512 CACHE STRING
+  "Maximum length, in characters, of a symbol.")
+
+# **** Storage
+
+set(UBW_STORE_SYMTBL_SIZE 1024
+  "Size of the symbols table.  This is the maximum number of symbols that can be interned.")
 
 # *** Target
 

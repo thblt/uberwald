@@ -10,16 +10,6 @@
 #include "stack.h"
 #include "store.h"
 
-/** @brief The size of the reader stack.
- *
- * This is equivalent to the deeper allowed nesting.
-*/
-#define UBW_READER_STACK_SIZE 256
-/**
- * @brief Slot count in the ephemeral store.
- */
-#define UBW_READER_STORE_SIZE 1024
-
 /** @brief @TODO  */
 typedef struct {
   enum {
