@@ -20,6 +20,20 @@
  */
 #define UBW_READER_STORE_SIZE 1024
 
+/** @brief @TODO  */
+typedef struct {
+  enum {
+    TK_BOL,
+    TK_EOL,
+    TK_BOV,
+    TK_EOV,
+    TK_OTHER,
+    TK_MACROCHAR,
+    TK_END
+  } type;
+  int pos, length;
+} ubw_token;
+
 /**
   * @brief The Überwald reader object
   */
@@ -39,7 +53,7 @@ typedef struct {
   //< @brief The head object
   ubw_obj * root;
   //! @brief Object stack
-  ubw_lops stack;
+  ubw_stack stack;
   //! @brief The main object and symbols store;
   ubw_store *store,
   //! @brief The ephemeral store.
@@ -56,24 +70,22 @@ typedef struct {
   } err;
 } ubw_reader;
 
-/** read Lisp from a C-type string.  This is only a thin wrapper
-    around the actual read function. */
-ubw_obj ** cstr_read(char ** s);
-
-/** read Lisp from a Lisp string. */
 ubw_reader * ubw_reader_new(ubw_store *s, char *buf);
-ubw_reader * ubw_reader_init(ubw_reader *r, ubw_store *s, char *buf);
-ubw_obj * ubw_read(ubw_reader *s);
 
-#ifdef UBW_INTERNALS
+/** @brief Initialize a new reader object */
+ubw_reader * ubw_reader_init(ubw_reader *r, ubw_store *s, char *buf);
+void ubw_reader_reset(ubw_reader *r, char *buf);
+
+/** @brief read Lisp from a Lisp string. @TODO Document */
+void ubw_read(ubw_reader *s);
+
+#ifdef UBW_EXPOSE_INTERNALS
+
+/** @brief Read next token from r */
+void next_token(ubw_reader *r, ubw_token *t);
+void identify(ubw_reader *r, ubw_token *t);
 
 /** @brief Return the position of the next separator (whitespace or NULL)
 */
-int next_sep(ubw_reader * st);
-
-/** @brief Handle the last read object.
- * \private
- */
-void push_object(ubw_reader *r, ubw_obj *o);
-ubw_obj * read_unknown(ubw_reader *r, ubw_obj *obj);
+int next_sep(ubw_reader * r);
 #endif

@@ -4,6 +4,10 @@
 
 #define TABSTOP 4
 
+void print(ubw_obj *o) {
+  doprint(o, 0, false);
+}
+
 void print_indent(int depth) {
   for(int i=0; i==TABSTOP*depth; i++) {
     printf(" ");
@@ -64,7 +68,7 @@ void doprint(ubw_obj *o, int depth, bool cdr) {
     printf("DELETED=NOREPR");
     break;
    default:
-     printf("ABNORMAL STATE");
+     printf("[ABNORMAL TAG %d]", o->type);
   }
   if (!depth)
     (printf("\n"));

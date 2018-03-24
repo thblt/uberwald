@@ -1,6 +1,7 @@
 /** @file
  * @brief Command-line interface */
 
+#include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -23,23 +24,19 @@ int main () {
          CLI_BUILD_INFO
          );
 
-  printf("(Überwald uses the following data lengths:\n");
-  printf("(char = %d ; int = %d, float = %d:\n",
-         sizeof(ubw_char),
-         sizeof(ubw_int),
-         sizeof(ubw_float));
-
   char * line = 0x00;
   while (NULL != (line = readline("> "))) {
-    ubw_reader * r = ubw_reader_new(NULL, line);
-    print(ubw_read(r));
+    ubw_reader *r = ubw_reader_new(NULL, line);
+    ubw_read(r);
     switch(r->err) {
-    case OK: printf("Weird state.\n"); break;
-    case DONE: printf("All good.\n"); break;
-    case UNEXPECTED_TOKEN: printf("Unexpected token!\n"); break;
+    case OK: printf("Abnormal state (reader returned with OK error code).\n"); break;
+    case DONE:
+      print(r->root);
+      printf("(All good.)\n"); break;
+    case UNEXPECTED_TOKEN: printf("Unexpected token (reader in position %d)!\n", r->pos); break;
     case UNEXPECTED_END_OF_INPUT: printf("Unexpected EOF!\n"); break;
     }
-        free(r);
+    free(r);
   }
 
   return EXIT_SUCCESS;

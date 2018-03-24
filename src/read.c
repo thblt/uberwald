@@ -3,11 +3,6 @@
 #include "object.h"
 #include "read.h"
 #include "store.h"
-#include "eval.h"
-
-#define SPACE ' '
-#define TAB '\t'
-#define LB '\n'
 
 /** @brief Allocate and initialize a new reader object */
 ubw_reader * ubw_reader_new(ubw_store *s, char *buf) {
@@ -16,7 +11,6 @@ ubw_reader * ubw_reader_new(ubw_store *s, char *buf) {
   return ret;
 }
 
-/** @brief Initialize a new reader object */
 ubw_reader * ubw_reader_init(ubw_reader *r, ubw_store *s, char *buf) {
   r->buf = buf;
   r->store = s;
@@ -32,108 +26,143 @@ ubw_reader * ubw_reader_init(ubw_reader *r, ubw_store *s, char *buf) {
   return r;
 }
 
-ubw_obj * ubw_read(ubw_reader *r) {
+void ubw_reader_reset(ubw_reader *r, char *buf) {
+  r->buf = buf;
+  // @TODO Empty stores
+  r->pos = 0;
+  r->line = 1;
+  r->col = 0;
+  r->root = NULL;
+  r->err = OK;
+}
 
-  ubw_obj *o = NULL;
+void ubw_read(ubw_reader *r) {
+  ubw_token t;
+  ubw_obj *o, *head, *newhead;
 
-  do {
-    switch (r->buf[r->pos]) {
-    case '(':
+  while (true) {
+
+    printf("Reading at position %d\n", r->pos);
+
+    o = NULL;
+    next_token(r, &t);
+    switch(t.type) {
+    case TK_BOL:
       o = ubw_store_new(r->store);
       ubw_list_init(o, NULL, NULL);
-      push_object(r, o);
-      ubw_lops_fcpush(&r->stack, o);
-
-      r->col++;
-      r->pos++;
       break;
+
+    case TK_EOL:
+      if (NULL == r->root) {
+        r->err = UNEXPECTED_TOKEN;
+        return;
+      } else {
+        ubw_stack_fpop(&r->stack);
+        if (0 == ubw_stack_length(&r->stack)) {
+          r->err = DONE;
+          return;
+        }
+      }
+      break;
+
+    case TK_OTHER:
+      o = ubw_store_new(r->store);
+      ubw_int_init(o, 153);
+      break;
+
+    case TK_END:
+      r->err = UNEXPECTED_END_OF_INPUT;
+      return;
+
+    case TK_BOV:
+    case TK_EOV:
+    case TK_MACROCHAR:
+      assert(false);
+      break;
+    }
+
+    if (NULL == o) continue;
+
+    if (0 == ubw_stack_length(&r->stack)) {
+      r->root = o;
+
+      if (ubw_list_p(o)) {
+        ubw_stack_fpush(&r->stack, o);
+      } else {
+        r->err = DONE;
+        return;
+      }
+    } else {
+      assert(ubw_stack_length(&r->stack));
+
+      head = ubw_stack_fpeek(&r->stack);
+
+      if (NULL == ubw_list_car(head)) {
+        head->data.list.car = o;
+      } else {
+        // cdr MUST be null
+        assert(NULL == ubw_list_cdr(head));
+        newhead = ubw_store_new(r->store);
+        ubw_list_init(newhead, o, NULL);
+        head->data.list.cdr = newhead;
+        ubw_stack_fpop(&r->stack);
+        ubw_stack_fpush(&r->stack, newhead);
+      }
+    }
+  }
+}
+
+void next_token(ubw_reader *r, ubw_token *t) {
+  while (true) {
+    t->pos = r->pos;
+    t->length = 1;
+    r->col++;
+    switch (r->buf[r->pos++]) {
+
+    case '(':
+      t->type = TK_BOL;
+      return;
 
     case ')':
-      ubw_lops_pop(&r->stack);
-      if (0 == ubw_lops_length(&r->stack)) {
-        r->err = DONE;
-      }
-      r->col++;
-      r->pos++;
-      continue;
+      t->type = TK_EOL;
+      return;
 
     case '[':
-      // @TODO
-      r->col++;
-      r->pos++;
-      break;
+      t->type = TK_BOV;
+      return;
 
     case ']':
-      // @TODO
-      r->col++;
-      r->pos++;
-      break;
-
-    case SPACE:
-    case TAB:
-      r->col++;
-      r->pos++;
-      break;
-
-    case LB:
-      r->line++;
-      r->col=0;
-      r->pos++;
-      break;
+      t->type = TK_EOV;
+      return;
 
     case 0x00:
-      r->err = UNEXPECTED_END_OF_INPUT;
+      t->type = EOF;
+      return;
+
+    case ' ':
+    case '\t':
+      break;
+
+    case '\n':
+      r->line++;
+      r->col=0;
       break;
 
     default:
-      o = ubw_store_new(r->store);
-      read_unknown(r, o);
-      push_object(r, o);
+      t->type = TK_OTHER;
+      t->length = next_sep(r) - r->pos + 1;
+      r->pos += t->length - 1;
+      r->col += t->length - 1;
+      return;
     }
-  } while (OK == r->err);
-
-  return r->root;
-}
-
-void push_object(ubw_reader *r, ubw_obj *o) {
-  // If we don't have a root, that object is the new root.
-  if (NULL == r->root) {
-    r->root = o;
-    if (!ubw_list_p(o)) {
-      // This is the first object, and it's not a list: we're done.
-      r->err = DONE;
-    }
-    return;
-  }
-
-  // If we're here, we're inside a list.  We then have to push this
-  // last object on top (cddddd...dr) of the list.
-  ubw_obj *head = ubw_lops_dfpeek(&r->stack);
-
-
-  // Remember we initialize lists with car = cdr = NULL.
-  if (NULL == ubw_list_car(head)) {
-    // If we don't have a car, we just set it.
-    head->data.list.car = o;
-  } else if (NULL == ubw_list_cdr(head)) {
-    // If we already have a car, this object must become cdr, hence a
-    // new list.  This is just a bit trickier.
-    ubw_obj *nhead = ubw_list_new(r->store, ubw_list_p(o) ? NULL : o, NULL);
-
-    ubw_lops_fpop(&r->stack);
-    ubw_lops_cpush(&r->stack, nhead);
-    head->data.list.cdr = nhead;
-  } else {
-    printf("ABNORMAL!!!\n");
-    exit(EXIT_FAILURE);
   }
 }
 
 int next_sep(ubw_reader *r) {
   int ret = r->pos;
-  while (r->buf[ret] != SPACE &&
-         r->buf[ret] != TAB &&
-         r->buf[ret] != LB &&
+  while (r->buf[ret] != ' ' &&
+         r->buf[ret] != '\t' &&
+         r->buf[ret] != '\n' &&
          r->buf[ret] != 0x00 &&
          r->buf[ret] != ')' &&
          r->buf[ret] != '(' &&
@@ -141,62 +170,4 @@ int next_sep(ubw_reader *r) {
          r->buf[ret] != ']')
     ret ++;
   return ret;
-}
-
-/** Decode a null or whitespace-terminated sequence of characters as
-    an integer, a float or a symbol, in that order of priority. */
-ubw_obj * read_unknown(ubw_reader *r, ubw_obj *o) {
-  int end = next_sep(r);
-  bool maybe_int = true,
-    maybe_float = true,
-    seen_dot = false;
-  // This may not be the most efficient approach, but it's easy to write.
-
-  for (int i=r->pos; (maybe_int || maybe_float) && i<end; i++) {
-    switch (r->buf[i]) {
-
-    case '-':
-    case '+':
-      // Minus and plus may appear at the beginning of a number.
-      if (i > r->pos) {
-        maybe_int = false;
-        maybe_float = false;
-      }
-      break;
-
-    case '.':
-      if (seen_dot) {
-        maybe_int = false;
-        maybe_float = false;
-      } else {
-        maybe_int = false;
-        seen_dot = true;
-      }
-      break;
-
-    case '0':
-    case '1':
-    case '2':
-    case '3':
-    case '4':
-    case '5':
-    case '6':
-    case '7':
-    case '8':
-    case '9':
-      break;
-    default:
-      maybe_int = false;
-      maybe_float = false;
-    }
-  }
-
-  if (maybe_int) ubw_int_init(o, 1);
-  else if (maybe_float) ubw_float_init(o, 1.5);
-  else ubw_symbol_init(o, 1);
-
-  r->col += (end - r->pos);
-  r->pos = end;
-
-  return o;
 }

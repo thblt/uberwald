@@ -95,7 +95,7 @@ struct ubw_obj {
 };
 
 // * Lists
-/** @brief Determine whether o is a list. */
+/** @brief The list predicate. */
 bool ubw_list_p (ubw_obj *o);
 /** @brief Initialize a new list. */
 ubw_obj * ubw_list_init (ubw_obj *o, ubw_obj *car, ubw_obj *cdr);
@@ -110,8 +110,9 @@ inline ubw_obj * ubw_list_cdr (ubw_obj *list) {
 }
 
 // * Vectors
+/** @brief The vector predicate. */
 bool ubw_vector_p (ubw_obj *o);
-void ubw_vector_init (ubw_obj *o, ubw_vector v);
+ubw_obj * ubw_vector_init (ubw_obj *o);
 ubw_vector * ubw_vector_unbox (ubw_obj *o);
 ubw_obj * ubw_vector_nth (ubw_obj *vec, int nth);
 
@@ -119,6 +120,7 @@ ubw_obj * ubw_vector_nth (ubw_obj *vec, int nth);
 bool ubw_obj2bool(ubw_obj * o);
 
 // * Integers
+/** @brief The int predicate. */
 bool ubw_int_p (ubw_obj *o);
 ubw_obj * ubw_int_init (ubw_obj *o, ubw_int v);
 #define ubw_int_new(store, val) ubw_int_init(ubw_store_new(store), val)
@@ -128,6 +130,8 @@ inline ubw_int ubw_int_unbox (ubw_obj *o) {
 
 
 // * Floats
+
+/** @brief The float predicate. */
 bool ubw_float_p (ubw_obj *o);
 ubw_obj * ubw_float_init (ubw_obj *o, ubw_float v);
 #define ubw_float_new(store, val) ubw_float_init(ubw_store_new(store), v)
@@ -135,7 +139,32 @@ inline ubw_float ubw_float_unbox (ubw_obj *o) {
   return o->data.fpn;
 }
 
+// * Chars
+/** @brief The char predicate. */
+bool ubw_char_p (ubw_obj *o);
+ubw_obj * ubw_char_init (ubw_obj *o, ubw_char c);
+
+// * Strings
+/** @brief The string predicate. */
+bool ubw_string_p (ubw_obj *o);
+ubw_obj * ubw_string_init (ubw_obj *o, ubw_string s);
+
+/** @brief The symbol predicate. */
 bool ubw_symbol_p (ubw_obj *o);
 ubw_obj * ubw_symbol_init (ubw_obj *o, ubw_symbid v);
 ubw_symbid * ubw_symbol_unbox (ubw_obj *o);
 #define ubw_symbol_new(store, val) ubw_symbol_init(ubw_store_new(store), v)
+
+// * Keywords
+
+/** @brief The keyword predicate. */
+bool ubw_keyword_p (ubw_obj *o);
+ubw_obj * ubw_keyword_init (ubw_obj *o, ubw_symbid v);
+ubw_symbid * ubw_keyword_unbox (ubw_obj *o);
+#define ubw_keyword_new(store, val) ubw_keyword_init(ubw_store_new(store), v)
+
+// * CFunc
+
+/** @brief The cfunc predicate. */
+bool ubw_cfunc_p (ubw_obj *o);
+ubw_obj * ubw_cfunc_init(ubw_obj *o, ubw_cfunc f);
