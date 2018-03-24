@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 3.8)
+cmake_minimum_required (VERSION 3.9)
 project (Uberwald C)
 
 set (UBW_VERSION_MAJOR 0)
@@ -97,10 +97,9 @@ set (DOXYGEN_PROJECT_NAME "Überwald")
 set (DOXYGEN_PROJECT_NUMBER "${UBW_VERSION_MAJOR}.${UBW_VERSION_MINOR}.${UBW_VERSION_PATCH}")
 set (DOXYGEN_OPTIMIZE_OUTPUT_FOR_C YES)
 set (DOXYGEN_EXTRACT_PRIVATE YES)
-set (DOXYGEN_INPUT src)
 set (DOXYGEN_RECURSIVE YES)
 
-# doxygen_add_docs(dylib)
+doxygen_add_docs(apidoc ${UBW_LIB_HEADERS} ${UBW_LIB_SOURCES})
 
 # ** CLI Executable
 
