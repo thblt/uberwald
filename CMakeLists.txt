@@ -15,7 +15,6 @@ include_directories(${UBW_LIB_SOURCE_DIR})
 include_directories(${UBW_CLI_SOURCE_DIR})
 
 set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -std=c11 -pedantic")
-add_definitions(-DUBW_INTERNALS)
 set (CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -DDEBUG")
 
 include_directories (
@@ -30,12 +29,16 @@ configure_file (
 	"${PROJECT_SOURCE_DIR}/src/config.h.in"
 	"${PROJECT_BINARY_DIR}/config.h")
 
-
-
-
 # * Targets
 
 # ** Library
+
+# *** Consfiguration
+
+set(UBW_READER_STACK_SIZE 256 CACHE STRING
+  "The default stack length of the reader.  This is equivalent to the maximum list nesting level.")
+
+# *** Target
 
 set (UBW_LIB_SOURCES
   ${UBW_LIB_SOURCE_DIR}/eval.c
@@ -58,12 +61,14 @@ set (UBW_LIB_HEADERS
   ${UBW_LIB_SOURCE_DIR}/uberwald.h
   ${UBW_CONTAINERS_SRC})
 
-add_library(LibUberwald SHARED
+add_library(dylib SHARED
   ${UBW_LIB_SOURCES}
   ${UBW_LIB_HEADERS}
 )
 
-set_target_properties(LibUberwald PROPERTIES OUTPUT_NAME "uberwald")
+target_compile_definitions(dylib PRIVATE -DUBW_EXPOSE_INTERNALS)
+
+set_target_properties(dylib PROPERTIES OUTPUT_NAME "uberwald")
 
 # ** Tests
 
@@ -71,18 +76,18 @@ find_package(Check REQUIRED)
 
 enable_testing()
 include_directories(${CHECK_INCLUDE_DIRS})
-add_executable(TestSuite
+add_executable(tests
   ${UBW_TESTS_SOURCE_DIR}/main.c
   ${UBW_TESTS_SOURCE_DIR}/stack_test.c
   ${UBW_TESTS_SOURCE_DIR}/object_test.c
   ${UBW_TESTS_SOURCE_DIR}/read_test.c)
 
-target_link_libraries(TestSuite LibUberwald)
-target_link_libraries(TestSuite ${CHECK_LIBRARIES})
+target_compile_definitions(tests PRIVATE -DUBW_EXPOSE_INTERNALS)
 
-SET_TARGET_PROPERTIES(TestSuite PROPERTIES OUTPUT_NAME "ubwtests")
+target_link_libraries(tests dylib)
+target_link_libraries(tests ${CHECK_LIBRARIES})
 
-add_test(TestSuite ${CMAKE_CURRENT_BINARY_DIR}/ubwtests)
+add_test(tests ${CMAKE_CURRENT_BINARY_DIR}/ubwtests)
 
 # ** Documentation
 
@@ -95,7 +100,7 @@ set (DOXYGEN_EXTRACT_PRIVATE YES)
 set (DOXYGEN_INPUT src)
 set (DOXYGEN_RECURSIVE YES)
 
-# doxygen_add_docs(LibUberwald)
+# doxygen_add_docs(dylib)
 
 # ** CLI Executable
 
@@ -108,5 +113,5 @@ add_executable(CLI
   ${UBW_LIB_HEADERS})
 
 SET_TARGET_PROPERTIES(CLI PROPERTIES OUTPUT_NAME "uberwald")
-target_link_libraries(CLI LibUberwald)
+target_link_libraries(CLI dylib)
 target_link_libraries(CLI readline)
