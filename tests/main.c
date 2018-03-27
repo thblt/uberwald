@@ -5,6 +5,7 @@
 Suite* object_c_suite();
 Suite* stack_c_suite();
 Suite* read_c_suite();
+Suite* symtbl_c_suite();
 
 int main(void)
  {
@@ -13,6 +14,7 @@ int main(void)
 
     sr = srunner_create(object_c_suite());
     srunner_add_suite(sr, stack_c_suite());
+    srunner_add_suite(sr, symtbl_c_suite());
     srunner_add_suite(sr, read_c_suite());
 
     srunner_run_all(sr, CK_VERBOSE);
