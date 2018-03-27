@@ -6,21 +6,17 @@
 
 #pragma once
 
+#include <stddef.h>
+
 #include "object.h"
 
 typedef struct {
-  /** @brief Pointer to underlying data */
-  ubw_obj **d;
-
-  unsigned int
-  /** @brief Head position (last record) == length */
-  h,
-  /** @brief Capacity */
-  c,
-  /** @brief grow size (for vector-like manipulation) */
-    g,
-  /** @brief index as a queue (if queue, length == h-q). */
-    q;
+  /** @brief Beginning of stack */
+  ubw_obj **beg,
+  /** @brief Stack head (first free location) */
+    **head,
+  /** @brief End of stack (last usable location) */
+    **end;
 }
   ubw_stack;
 
@@ -69,8 +65,8 @@ ubw_obj * ubw_stack_fpush(ubw_stack *s, ubw_obj* o);
 /**
  * @brief Return the length of a ubw_stack.
  *
- * @param s The ubw_stack.
+ *x @param s The ubw_stack.
  */
-inline int ubw_stack_length(const ubw_stack *s) {
-  return s->h;
+inline ptrdiff_t ubw_stack_length(const ubw_stack *s) {
+  return s->head - s->beg;
 }
