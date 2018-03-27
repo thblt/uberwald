@@ -21,29 +21,14 @@ include_directories (
 	"${PROJECT_SOURCE_DIR}"
 	"${PROJECT_BINARY_DIR}" )
 
-# * Intermediate products
+# * Configuration
 
-# ** config.h
-
-configure_file (
-	"${PROJECT_SOURCE_DIR}/src/config.h.in"
-	"${PROJECT_BINARY_DIR}/config.h")
-
-# * Targets
-
-# ** Library
-
-# *** Configuration
-
-# **** Reader
+# ** Reader
 
 set(UBW_READER_STACK_SIZE 256 CACHE STRING
   "The default stack length of the reader.  This is equivalent to the maximum list nesting level.")
 
-set(UBW_READER_STORE_SIZE 1024 CACHE STRING
-  "The default size for the reader's ephemeral store. ")
-
-# **** Lisp
+# ** Lisp
 
 set(UBW_LISP_TYPES_INT_TYPE "long int" CACHE string
   "C type of Lisp integers")
@@ -57,38 +42,60 @@ set(UBW_LISP_TYPES_CHAR_TYPE "int_least32_t" CACHE string
 set(UBW_LISP_MAX_SYMBOL_LENGTH 512 CACHE STRING
   "Maximum length, in characters, of a symbol.")
 
-# **** Storage
+# ** Storage
 
-set(UBW_STORE_SYMTBL_SIZE 1024
+set(UBW_HEAP_MAX_FRAGMENTATION 128 CACHE STRING
   "Size of the symbols table.  This is the maximum number of symbols that can be interned.")
 
-# *** Target
+set(UBW_SYMTBL_SIZE 1024 CACHE STRING
+  "Size of the symbols table.  This is the maximum number of symbols that can be interned.")
+
+set(UBW_SYMTBL_SYMBID_SIZE 64 CACHE STRING
+  "Size of a symbol id.")
+
+set (UBW_SYMTBL_HASH "FNV1" CACHE STRING
+  "The symbol hash algorithm.")
+
+set(UBW_EPH_STORE_SIZE 1024 CACHE STRING
+  "Size of the reader's ephemeral store. ")
+
+# * Intermediate products
+
+# ** config.h
+
+configure_file (
+	"${PROJECT_SOURCE_DIR}/src/config.h.in"
+	"${PROJECT_BINARY_DIR}/config.h")
+
+# * Targets
+
+# ** Library
 
 set (UBW_LIB_SOURCES
   ${UBW_LIB_SOURCE_DIR}/eval.c
+  ${UBW_LIB_SOURCE_DIR}/heap.c
   ${UBW_LIB_SOURCE_DIR}/object.c
   ${UBW_LIB_SOURCE_DIR}/print.c
   ${UBW_LIB_SOURCE_DIR}/read.c
   ${UBW_LIB_SOURCE_DIR}/stack.c
-  ${UBW_LIB_SOURCE_DIR}/store.c)
+  ${UBW_LIB_SOURCE_DIR}/symtbl.c)
 
 set (UBW_LIB_HEADERS
   ${UBW_LIB_SOURCE_DIR}/common.h
   ${UBW_LIB_SOURCE_DIR}/env.h
   ${UBW_LIB_SOURCE_DIR}/eval.h
+  ${UBW_LIB_SOURCE_DIR}/heap.h
   ${UBW_LIB_SOURCE_DIR}/object.h
   ${UBW_LIB_SOURCE_DIR}/print.h
   ${UBW_LIB_SOURCE_DIR}/read.h
   ${UBW_LIB_SOURCE_DIR}/stack.h
-  ${UBW_LIB_SOURCE_DIR}/store.h
-  ${UBW_LIB_SOURCE_DIR}/symbol.h
+  ${UBW_LIB_SOURCE_DIR}/symtbl.h
   ${UBW_LIB_SOURCE_DIR}/uberwald.h
   ${UBW_CONTAINERS_SRC})
 
 add_library(dylib SHARED
   ${UBW_LIB_SOURCES}
-  ${UBW_LIB_HEADERS}
-)
+  ${UBW_LIB_HEADERS})
 
 target_compile_definitions(dylib PRIVATE -DUBW_EXPOSE_INTERNALS)
 
@@ -104,7 +111,8 @@ add_executable(tests
   ${UBW_TESTS_SOURCE_DIR}/main.c
   ${UBW_TESTS_SOURCE_DIR}/stack_test.c
   ${UBW_TESTS_SOURCE_DIR}/object_test.c
-  ${UBW_TESTS_SOURCE_DIR}/read_test.c)
+  ${UBW_TESTS_SOURCE_DIR}/read_test.c
+  ${UBW_TESTS_SOURCE_DIR}/symtbl_test.c)
 
 target_compile_definitions(tests PRIVATE -DUBW_EXPOSE_INTERNALS)
 

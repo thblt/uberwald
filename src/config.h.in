@@ -1,15 +1,78 @@
+/**
+ * @brief The name of the thing
+ */
+#define UBW_APPNAME "Überwald"
+
+/**
+ * @brief The major component of Überwald's version number
+ */
 #define UBW_VERSION_MAJOR @UBW_VERSION_MAJOR@
+/**
+ * @brief The minor component of Überwald's version number
+ */
 #define UBW_VERSION_MINOR @UBW_VERSION_MINOR@
+/**
+ * @brief The patch component of Überwald's version number
+ */
 #define UBW_VERSION_PATCH @UBW_VERSION_PATCH@
 
+/**
+ * @brief The complete Überwald version number
+ */
 #define UBW_VERSION_STRING "@UBW_VERSION_MAJOR@.@UBW_VERSION_MINOR@.@UBW_VERSION_PATCH@"
 
+/**
+ * @brief The underlying C type of Lisp integers
+ */
 typedef @UBW_LISP_TYPES_INT_TYPE@ ubw_int;
-typedef @UBW_LISP_TYPES_FLOAT_TYPE@ ubw_float;
-typedef @UBW_LISP_TYPES_CHAR_TYPE@ ubw_char;
-typedef int ubw_symbid;
 
+/**
+ * @brief The underlying C type of Lisp floats
+ */
+typedef @UBW_LISP_TYPES_FLOAT_TYPE@ ubw_float;
+
+/**
+ * @brief The underlying C type of Lisp characters
+ */
+typedef @UBW_LISP_TYPES_CHAR_TYPE@ ubw_char;
+
+/**
+ * @brief The size in bits of symbol identifiers.
+ */
+#define UBW_SYMTBL_SYMBID_SIZE @UBW_SYMTBL_SYMBID_SIZE@
+
+/**
+ * @brief The type of symbol identifiers.
+ *
+ * This is an unsigned int of exactly UBW_SYMTBL_SYMBID_SIZE bits.
+ */
+typedef uint@UBW_SYMTBL_SYMBID_SIZE@_t ubw_symbid;
+
+/**
+ * @brief The hash function used by the symbol table
+ */
+#define UBW_SYMTBL_HASH @UBW_SYMTBL_HASH@
+
+/**
+ * @brief The maximum length of a Lisp symbol
+ */
 #define UBW_LISP_MAX_SYMBOL_LENGTH @UBW_LISP_MAX_SYMBOL_LENGTH@
 
+/**
+ * @brief @TODO Document
+ */
 #define UBW_READER_STACK_SIZE @UBW_READER_STACK_SIZE@
-#define UBW_READER_STORE_SIZE @UBW_READER_STORE_SIZE@
+
+/**
+ * @brief The size (in slots) of the ephemeral store
+ */
+#define UBW_EPH_STORE_SIZE @UBW_EPH_STORE_SIZE@
+
+/**
+ * @brief Maximum fragmentation of the heap.
+ *
+ * This is equal to the number of "holes" in the heap, minus one.
+ *
+ * 1 = absolutely no fragmentation; 2 = 1 hole, etc.
+ */
+#define UBW_HEAP_MAX_FRAGMENTATION @UBW_HEAP_MAX_FRAGMENTATION@
