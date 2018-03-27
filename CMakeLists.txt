@@ -139,14 +139,12 @@ endif()
 
 # ** CLI Executable
 
-message(">>> ${CMAKE_MODULE_PATH} ${CMAKE_PREFIX_PATH}")
-
 find_package(Readline REQUIRED)
 
-add_executable(CLI
+add_executable(cli
   ${UBW_CLI_SOURCE_DIR}/cli.c
   ${UBW_LIB_HEADERS})
 
-SET_TARGET_PROPERTIES(CLI PROPERTIES OUTPUT_NAME "uberwald")
-target_link_libraries(CLI dylib)
-target_link_libraries(CLI readline)
+SET_TARGET_PROPERTIES(cli PROPERTIES OUTPUT_NAME "uberwald")
+target_link_libraries(cli dylib)
+target_link_libraries(cli readline)
