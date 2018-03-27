@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 3.9)
+cmake_minimum_required (VERSION 3.8)
 project (Uberwald C)
 
 set (UBW_VERSION_MAJOR 0)
@@ -115,15 +115,19 @@ add_test(tests ${CMAKE_CURRENT_BINARY_DIR}/ubwtests)
 
 # ** Documentation
 
-find_package(Doxygen REQUIRED)
+if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.9)
+  find_package(Doxygen REQUIRED)
 
-set (DOXYGEN_PROJECT_NAME "Überwald")
-set (DOXYGEN_PROJECT_NUMBER "${UBW_VERSION_MAJOR}.${UBW_VERSION_MINOR}.${UBW_VERSION_PATCH}")
-set (DOXYGEN_OPTIMIZE_OUTPUT_FOR_C YES)
-set (DOXYGEN_EXTRACT_PRIVATE YES)
-set (DOXYGEN_RECURSIVE YES)
+  set (DOXYGEN_PROJECT_NAME "Überwald")
+  set (DOXYGEN_PROJECT_NUMBER "${UBW_VERSION_MAJOR}.${UBW_VERSION_MINOR}.${UBW_VERSION_PATCH}")
+  set (DOXYGEN_OPTIMIZE_OUTPUT_FOR_C YES)
+  set (DOXYGEN_EXTRACT_PRIVATE YES)
+  set (DOXYGEN_RECURSIVE YES)
 
-doxygen_add_docs(apidoc ${UBW_LIB_HEADERS} ${UBW_LIB_SOURCES})
+  doxygen_add_docs(apidoc ${UBW_LIB_HEADERS} ${UBW_LIB_SOURCES})
+else()
+  message(WARNING "API documentation generation requires CMake >= 3.9.  Dropping this target.")
+endif()
 
 # ** CLI Executable
 
