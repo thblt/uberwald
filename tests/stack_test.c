@@ -27,7 +27,7 @@ START_TEST (init)
 {
   ck_assert_ptr_eq(s16.head, s16.beg);
   ck_assert(s16.end > s16.beg);
-  ck_assert_ptr_eq(s16.end, &s16.beg[15]);
+  ck_assert_ptr_eq(s16.end, &s16.beg[16]);
 }
 END_TEST
 
@@ -123,9 +123,9 @@ START_TEST (pointer_alignment)
   ubw_stack_push(&s5, &o1);
   ubw_stack_push(&s5, &o2);
 
-  ck_assert_ptr_eq(s5.head, s5.end);
+  ck_assert_ptr_eq(s5.head, s5.end-1);
   ubw_stack_push(&s5, &o3);
-  ck_assert(s5.head > s5.end);
+  ck_assert(s5.head == s5.end);
 
   free(s5.beg);
 }

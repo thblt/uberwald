@@ -2,7 +2,7 @@
 
 ubw_stack* ubw_stack_init(ubw_stack *s, const int capacity, ubw_obj **dptr) {
   s->head = s->beg = (NULL != dptr) ? dptr : malloc(capacity*sizeof(ubw_obj*));
-  s->end = &s->beg[capacity-1];
+  s->end = &s->beg[capacity];
 
   return s;
 }
@@ -34,7 +34,7 @@ ubw_obj * ubw_stack_fpop(ubw_stack *s) {
 }
 
 ubw_obj * ubw_stack_push(ubw_stack *s, ubw_obj *o) {
-  if (s->head <= s->end) {
+  if (s->head < s->end) {
     *s->head = o;
     s->head++;
     return o;
@@ -44,7 +44,7 @@ ubw_obj * ubw_stack_push(ubw_stack *s, ubw_obj *o) {
 }
 
 ubw_obj * ubw_stack_fpush(ubw_stack *s, ubw_obj *o) {
-  assert(s->head <= s->end);
+  assert(s->head < s->end);
   *s->head = o;
   s->head++;
   return o;

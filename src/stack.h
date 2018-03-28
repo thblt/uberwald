@@ -17,7 +17,7 @@ typedef struct {
   ubw_obj **beg,
   /** @brief Stack head (first free location) */
     **head,
-  /** @brief End of stack (last usable location) */
+  /** @brief End of stack (element-after-last) */
     **end;
 }
   ubw_stack;
