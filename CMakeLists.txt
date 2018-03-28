@@ -9,6 +9,7 @@ set(CMAKE_PREFIX_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake ${CMAKE_PREFIX_PATH})
 
 set (UBW_LIB_SOURCE_DIR ${PROJECT_SOURCE_DIR}/src)
 set (UBW_CLI_SOURCE_DIR ${PROJECT_SOURCE_DIR}/src/cli)
+set (UBW_HASHBENCH_SOURCE_DIR ${PROJECT_SOURCE_DIR}/hashbench)
 set (UBW_TESTS_SOURCE_DIR ${PROJECT_SOURCE_DIR}/tests)
 
 include_directories(${UBW_LIB_SOURCE_DIR})
@@ -136,27 +137,54 @@ add_executable(cli ${UBW_CLI_SOURCES}
 
 SET_TARGET_PROPERTIES(cli PROPERTIES OUTPUT_NAME "uberwald")
 target_link_libraries(cli dylib)
-target_link_libraries(cli readline)
+target_link_libraries(cli ${READLINE_LIBRARIES})
+
+# ** Hash benchmark
+
+set (UBW_HASHBENCH_SOURCES ${UBW_HASHBENCH_SOURCE_DIR}/hashbench.c
+  ${UBW_HASHBENCH_SOURCE_DIR}/hashwords.c)
+
+add_executable(hashbench ${UBW_HASHBENCH_SOURCES}
+    ${UBW_HASHBENCH_HEADERS})
+
+target_compile_definitions(hashbench PRIVATE -DUBW_EXPOSE_INTERNALS)
+target_link_libraries(hashbench dylib)
+
+set_target_properties(hashbench PROPERTIES EXCLUDE_FROM_ALL YES)
 
 # ** API Documentation
 
 if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.9)
   find_package(Doxygen REQUIRED)
 
-  set (DOXYGEN_COLLABORATION_GRAPH NO)
   set (DOXYGEN_EXTRACT_PRIVATE YES)
   set (DOXYGEN_LAYOUT_FILE ${PROJECT_SOURCE_DIR}/DoxygenLayout.xml)
   set (DOXYGEN_OPTIMIZE_OUTPUT_FOR_C YES)
   set (DOXYGEN_PROJECT_NAME "Überwald")
   set (DOXYGEN_PROJECT_NUMBER "${UBW_VERSION_MAJOR}.${UBW_VERSION_MINOR}.${UBW_VERSION_PATCH}")
-  set (DOXYGEN_RECURSIVE YES)
+
+  set (DOXYGEN_SOURCE_BROWSER YES)
+
+  set (DOXYGEN_MACRO_EXPANSION YES)
+  set (DOXYGEN_EXPAND_ONLY_PREDEF YES)
+  # Check support macros.
+  set (DOXYGEN_PREDEFINED "START_TEST(name)=void name(int i)
+    END_TEST=// End")
 
   doxygen_add_docs(apidoc ${UBW_LIB_HEADERS}
     ${UBW_LIB_SOURCES}
     ${UBW_CLI_SOURCES}
     ${UBW_TESTS_SOURCES}
-    ${UBW_CLI_SOURCES}
-    )
+    ${UBW_CLI_SOURCES})
 else()
   message(WARNING "API documentation generation requires CMake >= 3.9.  Dropping this target.")
 endif()
+
+# ** TAGS
+
+# (set UBW_TAGS ${CMAKE_SOURCE_DIR}/TAGS)
+
+# set_source_files_properties(${UBW_TAGS} PROPERTIES GENERATED true)
+#add_custom_target(${UBW_TAGS}
+#     COMMAND ctags -e -R --c++-kinds=+p --fields=+iaS --extra=+q .
+#    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
