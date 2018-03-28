@@ -14,7 +14,7 @@
 
 #include <stdlib.h>
 
-#include "common.h"
+#include "config.h"
 
 typedef struct ubw_obj ubw_obj;
 

@@ -11,7 +11,7 @@
 
 #pragma once
 
-#include "common.h"
+#include "config.h"
 #include "object.h"
 
 /** The Überwald in-memory storage system.  This should store a

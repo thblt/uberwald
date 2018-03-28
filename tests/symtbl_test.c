@@ -4,7 +4,6 @@
  * @brief Test suite for symtbl.c
  */
 
-
 #include <limits.h>
 
 #include "ubwtest.h"
@@ -26,5 +25,3 @@ Suite * symtbl_c_suite() {
 
   return s;
 }
-<
-//! @}

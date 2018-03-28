@@ -9,7 +9,7 @@
 
 #pragma once
 
-#include "common.h"
+#include "config.h"
 #include "object.h"
 
 #if 32==UBW_SYMTBL_SYMBID_SIZE

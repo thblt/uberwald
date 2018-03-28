@@ -7,7 +7,7 @@
  */
 
 
-#include "common.h"
+#include "config.h"
 #include "object.h"
 
 void print(ubw_obj *o);

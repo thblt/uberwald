@@ -8,7 +8,7 @@
 
 #pragma once
 
-#include "common.h"
+#include "config.h"
 #include "eval.h"
 #include "object.h"
 #include "read.h"

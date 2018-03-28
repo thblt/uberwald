@@ -22,6 +22,13 @@
  * called with `--version`.
  */
 
+#pragma once
+
+#include <assert.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <stddef.h>
+
 /**
  * @brief The name of the thing
  */
@@ -100,5 +107,3 @@ typedef uint@UBW_SYMTBL_SYMBID_SIZE@_t ubw_symbid;
  * minus one.  Eg, 1 = absolutely no fragmentation; 2 = max 1 hole, etc.
  */
 #define UBW_HEAP_MAX_FRAGMENTATION @UBW_HEAP_MAX_FRAGMENTATION@
-
-//! @}

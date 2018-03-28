@@ -84,7 +84,6 @@ set (UBW_LIB_SOURCES
 
 set (UBW_LIB_HEADERS
   ${UBW_CONFIG_HEADER}
-  ${UBW_LIB_SOURCE_DIR}/common.h
   ${UBW_LIB_SOURCE_DIR}/env.h
   ${UBW_LIB_SOURCE_DIR}/eval.h
   ${UBW_LIB_SOURCE_DIR}/heap.h

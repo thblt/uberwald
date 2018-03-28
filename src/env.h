@@ -8,7 +8,7 @@
 
 #pragma once
 
-#include "common.h"
+#include "config.h"
 #include "object.h"
 
 typedef struct {
