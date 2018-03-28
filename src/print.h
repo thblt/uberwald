@@ -1,3 +1,12 @@
+/**
+ * @file
+ * @ingroup core
+ * @brief Lisp printer
+ *
+ * A basic recursive printer for Lisp objects.
+ */
+
+
 #include "common.h"
 #include "object.h"
 

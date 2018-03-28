@@ -1,3 +1,10 @@
+/**
+ * @ingroup tests
+ *
+ * @file
+ * @brief Test suite for stack.c
+ */
+
 #include "ubwtest.h"
 
 ubw_stack s5, s16, s5f, s16f;

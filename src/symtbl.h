@@ -1,8 +1,11 @@
-/** @file
-  *  @brief Symbol lookup table
+/**
+ * @file
+ * @ingroup core
+ * @brief Symbol lookup table
   *
   * The symbol table is an associative data structure mapping strings
-  * to some numeric identifiers.  The standard */
+  * to some numeric identifiers.
+  */
 
 #pragma once
 

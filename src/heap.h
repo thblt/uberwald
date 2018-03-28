@@ -1,9 +1,10 @@
 /**
  * @file
- * @brief Heap management.
+ * @ingroup core
+ * @brief Heap manager
  *
  * The heap is a contiguous memory area whose size is expressed in
- * LISP objects.  In systems with a libc, heap management is partially
+ * Lisp objects.  In systems with a libc, heap management is partially
  * delegated to the standard malloc() and free() functions, else it is
  * entirely manual.
  */

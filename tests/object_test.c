@@ -1,3 +1,10 @@
+/**
+ * @ingroup tests
+ *
+ * @file
+ * @brief Test suite for object.c
+ */
+
 #include "ubwtest.h"
 
 /** @brief Return true iff o matches one and only one of the type predicates */

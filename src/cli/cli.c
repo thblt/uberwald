@@ -1,4 +1,7 @@
-/** @file
+/**
+ * @defgroup cli CLI
+ * @brief Command-line interface and REPL
+ * @file
  * @brief Command-line interface */
 
 #include <limits.h>

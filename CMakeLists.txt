@@ -63,9 +63,11 @@ set(UBW_EPH_STORE_SIZE 1024 CACHE STRING
 
 # ** config.h
 
+set(UBW_CONFIG_HEADER "${PROJECT_BINARY_DIR}/config.h")
+
 configure_file (
 	"${PROJECT_SOURCE_DIR}/src/config.h.in"
-	"${PROJECT_BINARY_DIR}/config.h")
+  ${UBW_CONFIG_HEADER})
 
 # * Targets
 
@@ -81,6 +83,7 @@ set (UBW_LIB_SOURCES
   ${UBW_LIB_SOURCE_DIR}/symtbl.c)
 
 set (UBW_LIB_HEADERS
+  ${UBW_CONFIG_HEADER}
   ${UBW_LIB_SOURCE_DIR}/common.h
   ${UBW_LIB_SOURCE_DIR}/env.h
   ${UBW_LIB_SOURCE_DIR}/eval.h
@@ -88,6 +91,7 @@ set (UBW_LIB_HEADERS
   ${UBW_LIB_SOURCE_DIR}/object.h
   ${UBW_LIB_SOURCE_DIR}/print.h
   ${UBW_LIB_SOURCE_DIR}/read.h
+  ${UBW_LIB_SOURCE_DIR}/runtime.h
   ${UBW_LIB_SOURCE_DIR}/stack.h
   ${UBW_LIB_SOURCE_DIR}/symtbl.h
   ${UBW_LIB_SOURCE_DIR}/uberwald.h
@@ -104,15 +108,16 @@ set_target_properties(dylib PROPERTIES OUTPUT_NAME "uberwald")
 # ** Tests
 
 find_package(Check REQUIRED)
-
 enable_testing()
 include_directories(${CHECK_INCLUDE_DIRS})
-add_executable(tests
-  ${UBW_TESTS_SOURCE_DIR}/main.c
+
+set(UBW_TESTS_SOURCES ${UBW_TESTS_SOURCE_DIR}/main.c
   ${UBW_TESTS_SOURCE_DIR}/stack_test.c
   ${UBW_TESTS_SOURCE_DIR}/object_test.c
   ${UBW_TESTS_SOURCE_DIR}/read_test.c
   ${UBW_TESTS_SOURCE_DIR}/symtbl_test.c)
+
+add_executable(tests ${UBW_TESTS_SOURCES})
 
 target_compile_definitions(tests PRIVATE -DUBW_EXPOSE_INTERNALS)
 
@@ -121,30 +126,38 @@ target_link_libraries(tests ${CHECK_LIBRARIES})
 
 add_test(tests ${CMAKE_CURRENT_BINARY_DIR}/ubwtests)
 
-# ** Documentation
-
-if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.9)
-  find_package(Doxygen REQUIRED)
-
-  set (DOXYGEN_PROJECT_NAME "Überwald")
-  set (DOXYGEN_PROJECT_NUMBER "${UBW_VERSION_MAJOR}.${UBW_VERSION_MINOR}.${UBW_VERSION_PATCH}")
-  set (DOXYGEN_OPTIMIZE_OUTPUT_FOR_C YES)
-  set (DOXYGEN_EXTRACT_PRIVATE YES)
-  set (DOXYGEN_RECURSIVE YES)
-
-  doxygen_add_docs(apidoc ${UBW_LIB_HEADERS} ${UBW_LIB_SOURCES})
-else()
-  message(WARNING "API documentation generation requires CMake >= 3.9.  Dropping this target.")
-endif()
-
 # ** CLI Executable
 
 find_package(Readline REQUIRED)
 
-add_executable(cli
-  ${UBW_CLI_SOURCE_DIR}/cli.c
-  ${UBW_LIB_HEADERS})
+set (UBW_CLI_SOURCES ${UBW_CLI_SOURCE_DIR}/cli.c)
+
+add_executable(cli ${UBW_CLI_SOURCES}
+    ${UBW_LIB_HEADERS})
 
 SET_TARGET_PROPERTIES(cli PROPERTIES OUTPUT_NAME "uberwald")
 target_link_libraries(cli dylib)
 target_link_libraries(cli readline)
+
+# ** API Documentation
+
+if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.9)
+  find_package(Doxygen REQUIRED)
+
+  set (DOXYGEN_COLLABORATION_GRAPH NO)
+  set (DOXYGEN_EXTRACT_PRIVATE YES)
+  set (DOXYGEN_LAYOUT_FILE ${PROJECT_SOURCE_DIR}/DoxygenLayout.xml)
+  set (DOXYGEN_OPTIMIZE_OUTPUT_FOR_C YES)
+  set (DOXYGEN_PROJECT_NAME "Überwald")
+  set (DOXYGEN_PROJECT_NUMBER "${UBW_VERSION_MAJOR}.${UBW_VERSION_MINOR}.${UBW_VERSION_PATCH}")
+  set (DOXYGEN_RECURSIVE YES)
+
+  doxygen_add_docs(apidoc ${UBW_LIB_HEADERS}
+    ${UBW_LIB_SOURCES}
+    ${UBW_CLI_SOURCES}
+    ${UBW_TESTS_SOURCES}
+    ${UBW_CLI_SOURCES}
+    )
+else()
+  message(WARNING "API documentation generation requires CMake >= 3.9.  Dropping this target.")
+endif()

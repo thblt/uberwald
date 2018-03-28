@@ -1,0 +1,94 @@
+#+TITLE: Überwald
+#+AUTHOR: Thibault Polge
+#+EMAIL: thibault@thb.lt
+#+DATE: 2018-03-24
+#+LANGUAGE: en
+
+Überwald is a minimal Lisp machine optimized for lightness, speed and portability.  Überwald should run on any system which can be targeted by a C compiler.  The core Lisp machine has absolutely no dependencies whatsoever, and does not even depend on a libc.
+
+This manual documents the Überwald LISP machine and the Lisp dialect it runs.
+
+#+BEGIN_QUOTE
+Copyright (C) 2018 Thibault Polge <thibault@thb.lt>
+
+You can redistribute this document and/or modify it under the terms
+of the GNU General Public License as published by the Free Software
+Foundation, either version 3 of the License, or (at your option) any
+later version.
+
+This document is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+General Public License for more details.
+#+END_QUOTE
+
+* Installation
+
+** Building from source
+
+Überwald is split in two essential parts: a library, which can be built as either shared or static, and a rudimentary CLI interface.
+
+*** Dependencies
+
+Building the Überwald core library requires only [[https://cmake.org/][CMake]] ≥ 3.9 and a reasonably recent C compiler with C11 support.  Extra dependencies include:
+
+| Component  | Requires             |
+|------------+----------------------|
+| REPL       | Readline or editline |
+| Test suite | [[https://libcheck.github.io/check/][Check]]                |
+
+*** Build options
+
+The Überwald virtual machine can be configured at compile time.
+
+* Internals
+
+** Overall description
+
+This section provides a rough description of the internal working of Überwald, the next sections provide a more comprehensive review of specific aspects.
+
+** The runtime
+:PROPERTIES:
+:CUSTOM-ID: runtime
+:END:
+
+
+** The heap manager (=heap.c=)
+
+For obvious reasons, Überwald manages its own memory and relies as little as possible on the C standard memory allocation features.  The heap manager is an essential component of Überwald memory management.  It manages allocating, reallocating and freeing memory.  The heap manager is defined as:
+
+#+INCLUDE: "../src/heap.h" src c :lines "16-38"
+
+Managed memory is actually divided in two parts:
+
+ - The main area, pointed to by =h=, is where most allocation takes place.  This area may be fragmented, defragmented and garbage-collected.
+ - The ephemeral store, pointed to by
+
+* Extending Überwald: calling C from Lisp
+
+Überwald Lisp has a very rudimentary FFI.  C functions with specific signatures may be exposed bound inside the initial environment and called from Lisp code.
+
+** Writing callable C functions
+
+For a C function to be callable from Lisp code, it must return a =ubw_obj*=, take a =ubw_rt*= argument as its first argument and as much =ubw_obj*= arguments as the number of named parameters in the Lisp interface to this function, plus one if the function is declared variadic (the /Lisp arguments/).
+
+#+BEGIN_SRC c
+  ubw_obj * name (ubw_rt *runtime,   // The current runtime.
+                  ubw_obj *arg0,     // First Lisp argument
+                  ubw_obj *arg1,     // Second Lisp argument
+                  [...]
+                  ubw_obj *argN,     // nth Lisp argument
+                  ubw_obj *variarg); // Optional variadic argument.
+#+END_SRC
+
+In the example above, =runtime= is a pointer to the [[#runtime][Überwald runtime]].  This must absolutely
+
+** Memory management
+
+Überwald is memory managed.  C functions should avoid using malloc and similar C calls, and use only the memory management infrastructure provided in the various =ubw_heap_= functions declared in =heap.h=.
+
+** TODO Registering functions
+
+Callable functions must be properly registered into a Lisp environment to become usable.
+
+* The language

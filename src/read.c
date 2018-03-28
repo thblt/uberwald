@@ -1,58 +1,52 @@
 #include <stdio.h>
 
-#include "object.h"
 #include "read.h"
-#include "store.h"
+#include "heap.h"
 
-/** @brief Allocate and initialize a new reader object */
-ubw_reader * ubw_reader_new(ubw_store *s, char *buf) {
-  ubw_reader *ret = malloc(sizeof(ubw_reader));
-  ubw_reader_init(ret, s, buf);
-  return ret;
-}
-
-ubw_reader * ubw_reader_init(ubw_reader *r, ubw_store *s, char *buf) {
-  r->buf = buf;
-  r->store = s;
+ubw_reader * ubw_reader_init(ubw_rt *rt, ubw_reader *r) {
+  // Initialize the reader
   r->pos = 0;
   r->line = 1;
   r->col = 0;
-  r->root = NULL;
   r->err = OK;
 
-  ubw_store_init(&r->eph_store, UBW_READER_STORE_SIZE, 0);
-  ubw_stack_init(&r->stack, UBW_READER_STACK_SIZE, NULL);
+  // Allocate the ephemeral store
+  if (NULL == ubw_es_maybe_alloc(&rt->h, UBW_EPH_STORE_SIZE)) {
+    r->err = NO_EPH_STORE;
+    return r;
+  }
+  // Take one hold of the ephemeral store.
+  ubw_es_claim(&rt->h);
 
   return r;
 }
 
-void ubw_reader_reset(ubw_reader *r, char *buf) {
-  r->buf = buf;
-  // @TODO Empty stores
-  r->pos = 0;
-  r->line = 1;
-  r->col = 0;
-  r->root = NULL;
-  r->err = OK;
+ubw_reader * ubw_reader_reset(ubw_rt *rt, ubw_reader *r) {
+  r->err = (NO_EPH_STORE == r->err) ? r->err : OK;
+
+  // Release one hold on the ephemeral store.
+  ubw_es_release(&rt->h);
+
+  return r;
 }
 
-void ubw_read(ubw_reader *r) {
+void ubw_read(ubw_rt *rt, ubw_reader *r, const char* buf) {
   ubw_token t;
-  ubw_obj *o, *head, *newhead;
+  ubw_obj *ret = NULL, *o, *head, *newhead;
 
   while (true) {
 
     o = NULL;
-    next_token(r, &t);
+    next_token(r, &t, buf);
 
     switch(t.type) {
     case TK_BOL:
-      o = ubw_store_new(r->store);
+      o = ubw_heap_new(&rt->h);
       ubw_list_init(o, NULL, NULL);
       break;
 
     case TK_EOL:
-      if (NULL == r->root) {
+      if (NULL == ret) { // @FIXME Determine if we have root.
         r->err = UNEXPECTED_TOKEN;
         return;
       } else {
@@ -65,7 +59,7 @@ void ubw_read(ubw_reader *r) {
       break;
 
     case TK_OTHER:
-      o = ubw_store_new(r->store);
+      o = ubw_heap_new(&rt->h);
       ubw_symbol_init(o, 1);
       break;
 
@@ -83,7 +77,8 @@ void ubw_read(ubw_reader *r) {
     if (NULL == o) continue;
 
     if (0 == ubw_stack_length(&r->stack)) {
-      r->root = o;
+      rt->h.esh = o;
+      rt->h.esh++;
 
       if (ubw_list_p(o)) {
         ubw_stack_fpush(&r->stack, o);
@@ -102,7 +97,7 @@ void ubw_read(ubw_reader *r) {
       } else {
         assert(NULL == ubw_list_cdr(head));
 
-        newhead = ubw_store_new(r->store);
+        newhead = ubw_heap_new(&rt->h);
         ubw_list_init(newhead, o, NULL);
         head->data.list.cdr = newhead;
         ubw_stack_fpop(&r->stack);
@@ -112,12 +107,12 @@ void ubw_read(ubw_reader *r) {
   }
 }
 
-void next_token(ubw_reader *r, ubw_token *t) {
+void next_token(ubw_reader *r, ubw_token *t, const char *buf) {
   while (true) {
     t->pos = r->pos;
     t->length = 1;
     r->col++;
-    switch (r->buf[r->pos++]) {
+    switch (buf[r->pos++]) {
 
     case '(':
       t->type = TK_BOL;
@@ -150,7 +145,7 @@ void next_token(ubw_reader *r, ubw_token *t) {
 
     default:
       t->type = TK_OTHER;
-      t->length = next_sep(r) - r->pos + 1;
+      t->length = next_sep(r, buf) - r->pos + 1;
       r->pos += t->length - 1;
       r->col += t->length - 1;
       return;
@@ -158,16 +153,16 @@ void next_token(ubw_reader *r, ubw_token *t) {
   }
 }
 
-int next_sep(ubw_reader *r) {
+int next_sep(ubw_reader *r, const char *buf) {
   int ret = r->pos;
-  while (r->buf[ret] != ' ' &&
-         r->buf[ret] != '\t' &&
-         r->buf[ret] != '\n' &&
-         r->buf[ret] != 0x00 &&
-         r->buf[ret] != ')' &&
-         r->buf[ret] != '(' &&
-         r->buf[ret] != '[' &&
-         r->buf[ret] != ']')
+  while (buf[ret] != ' ' &&
+         buf[ret] != '\t' &&
+         buf[ret] != '\n' &&
+         buf[ret] != 0x00 &&
+         buf[ret] != ')' &&
+         buf[ret] != '(' &&
+         buf[ret] != '[' &&
+         buf[ret] != ']')
     ret ++;
   return ret;
 }

@@ -1,155 +1,163 @@
+/**
+ * @ingroup tests
+ *
+ * @file
+ * @brief Test suite for read.c
+ */
+
 #include "ubwtest.h"
+
+ubw_rt runtime;
+ubw_reader reader;
+
+void setup() {
+  ubw_reader_init(&runtime, &reader);
+}
 
 START_TEST (tkn_lists)
 {
-  ubw_reader r;
-  ubw_reader_init(&r, NULL, "((    ))\n())");
+  const char* lisp = "((    ))\n())";
+
   ubw_token t;
 
-  ck_assert_int_eq(r.pos, 0);
-  ck_assert_int_eq(r.col, 0);
-  ck_assert_int_eq(r.line, 1);
+  ck_assert_int_eq(reader.pos, 0);
+  ck_assert_int_eq(reader.col, 0);
+  ck_assert_int_eq(reader.line, 1);
 
-  next_token(&r, &t);
+  next_token(&reader, &t, lisp);
   ck_assert_int_eq(t.type, TK_BOL);
-  ck_assert_int_eq(r.pos, 1);
-  ck_assert_int_eq(r.col, 1);
-  ck_assert_int_eq(r.line, 1);
+  ck_assert_int_eq(reader.pos, 1);
+  ck_assert_int_eq(reader.col, 1);
+  ck_assert_int_eq(reader.line, 1);
 
-  next_token(&r, &t);
+  next_token(&reader, &t, lisp);
   ck_assert_int_eq(t.type, TK_BOL);
-  ck_assert_int_eq(r.pos, 2);
-  ck_assert_int_eq(r.col, 2);
-  ck_assert_int_eq(r.line, 1);
+  ck_assert_int_eq(reader.pos, 2);
+  ck_assert_int_eq(reader.col, 2);
+  ck_assert_int_eq(reader.line, 1);
 
-  next_token(&r, &t);
+  next_token(&reader, &t, lisp);
   ck_assert_int_eq(t.type, TK_EOL);
-  ck_assert_int_eq(r.pos, 7);
-  ck_assert_int_eq(r.col, 7);
-  ck_assert_int_eq(r.line, 1);
+  ck_assert_int_eq(reader.pos, 7);
+  ck_assert_int_eq(reader.col, 7);
+  ck_assert_int_eq(reader.line, 1);
 
-  next_token(&r, &t);
+  next_token(&reader, &t, lisp);
   ck_assert_int_eq(t.type, TK_EOL);
-  ck_assert_int_eq(r.pos, 8);
-  ck_assert_int_eq(r.col, 8);
-  ck_assert_int_eq(r.line, 1);
+  ck_assert_int_eq(reader.pos, 8);
+  ck_assert_int_eq(reader.col, 8);
+  ck_assert_int_eq(reader.line, 1);
 
   // Line break
 
-  next_token(&r, &t);
+  next_token(&reader, &t, lisp);
   ck_assert_int_eq(t.type, TK_BOL);
-  ck_assert_int_eq(r.pos, 10);
-  ck_assert_int_eq(r.col, 1);
-  ck_assert_int_eq(r.line, 2);
+  ck_assert_int_eq(reader.pos, 10);
+  ck_assert_int_eq(reader.col, 1);
+  ck_assert_int_eq(reader.line, 2);
 
-  next_token(&r, &t);
+  next_token(&reader, &t, lisp);
   ck_assert_int_eq(t.type, TK_EOL);
-  ck_assert_int_eq(r.pos, 11);
-  ck_assert_int_eq(r.col, 2);
-  ck_assert_int_eq(r.line, 2);
+  ck_assert_int_eq(reader.pos, 11);
+  ck_assert_int_eq(reader.col, 2);
+  ck_assert_int_eq(reader.line, 2);
 
-  next_token(&r, &t);
+  next_token(&reader, &t, lisp);
   ck_assert_int_eq(t.type, TK_EOL);
-  ck_assert_int_eq(r.pos, 12);
-  ck_assert_int_eq(r.col, 3);
-  ck_assert_int_eq(r.line, 2);
+  ck_assert_int_eq(reader.pos, 12);
+  ck_assert_int_eq(reader.col, 3);
+  ck_assert_int_eq(reader.line, 2);
 
-  next_token(&r, &t);
+  next_token(&reader, &t, lisp);
   ck_assert_int_eq(t.type, TK_END);
 }
 END_TEST
 
 START_TEST (tkn_nospace)
 {
-  ubw_reader r;
-  ubw_reader_init(&r, NULL, "(abc)");
+
+  const char *lisp = "(abc)";
+
   ubw_token t;
 
-  ck_assert_int_eq(r.pos, 0);
-  ck_assert_int_eq(r.col, 0);
+  ck_assert_int_eq(reader.pos, 0);
+  ck_assert_int_eq(reader.col, 0);
 
-  next_token(&r, &t);
+  next_token(&reader, &t, lisp);
   ck_assert_int_eq(t.type, TK_BOL);
-  ck_assert_int_eq(r.pos, 1);
-  ck_assert_int_eq(r.col, 1);
+  ck_assert_int_eq(reader.pos, 1);
+  ck_assert_int_eq(reader.col, 1);
 
-  next_token(&r, &t);
+  next_token(&reader, &t, lisp);
   ck_assert_int_eq(t.type, TK_OTHER);
   ck_assert_int_eq(t.length, 3);
-  ck_assert_int_eq(r.pos, 4);
-  ck_assert_int_eq(r.col, 4);
+  ck_assert_int_eq(reader.pos, 4);
+  ck_assert_int_eq(reader.col, 4);
 
-  next_token(&r, &t);
+  next_token(&reader, &t, lisp);
   ck_assert_int_eq(t.type, TK_EOL);
-  ck_assert_int_eq(r.pos, 5);
-  ck_assert_int_eq(r.col, 5);
-  ck_assert_int_eq(r.line, 1);
+  ck_assert_int_eq(reader.pos, 5);
+  ck_assert_int_eq(reader.col, 5);
+  ck_assert_int_eq(reader.line, 1);
 }
 END_TEST
 
 START_TEST (tkn_symbols_and_numbers)
 {
-  char *lisp = "( abc def 123 12.39     457 )";
-  ubw_reader r;
-  ubw_reader_init(&r, NULL, lisp);
+  const char *lisp = "( abc def 123 12.39     457 )";
   ubw_token t;
 
-  ck_assert_int_eq(r.pos, 0);
-  ck_assert_int_eq(r.col, 0);
-  ck_assert_int_eq(r.line, 1);
+  ck_assert_int_eq(reader.pos, 0);
+  ck_assert_int_eq(reader.col, 0);
+  ck_assert_int_eq(reader.line, 1);
 
-  next_token(&r, &t); // (
+  next_token(&reader, &t, lisp); // (
   ck_assert_int_eq(t.type, TK_BOL);
-  ck_assert_int_eq(r.pos, 1);
+  ck_assert_int_eq(reader.pos, 1);
 
-  next_token(&r, &t); // abc
+  next_token(&reader, &t, lisp); // abc
   ck_assert_int_eq(t.type, TK_OTHER);
   ck_assert_int_eq(t.length, 3);
-  ck_assert_int_eq(r.pos, 5);
-  ck_assert_int_eq(r.col, 5);
-  ck_assert_int_eq(r.line, 1);
+  ck_assert_int_eq(reader.pos, 5);
+  ck_assert_int_eq(reader.col, 5);
+  ck_assert_int_eq(reader.line, 1);
 
-  next_token(&r, &t); // def
+  next_token(&reader, &t, lisp); // def
   ck_assert_int_eq(t.type, TK_OTHER);
   ck_assert_int_eq(t.length, 3);
-  ck_assert_int_eq(r.pos, 9);
-  ck_assert_int_eq(r.col, 9);
-  ck_assert_int_eq(r.line, 1);
+  ck_assert_int_eq(reader.pos, 9);
+  ck_assert_int_eq(reader.col, 9);
+  ck_assert_int_eq(reader.line, 1);
 
-  next_token(&r, &t); // 123
+  next_token(&reader, &t, lisp); // 123
   ck_assert_int_eq(t.type, TK_OTHER);
   ck_assert_int_eq(t.length, 3);
-  ck_assert_int_eq(r.pos, 13);
-  ck_assert_int_eq(r.col, 13);
-  ck_assert_int_eq(r.line, 1);
+  ck_assert_int_eq(reader.pos, 13);
+  ck_assert_int_eq(reader.col, 13);
+  ck_assert_int_eq(reader.line, 1);
 
-  next_token(&r, &t); // 12.39
+  next_token(&reader, &t, lisp); // 12.39
   ck_assert_int_eq(t.type, TK_OTHER);
   ck_assert_int_eq(t.length, 5);
-  ck_assert_int_eq(r.pos, 19);
-  ck_assert_int_eq(r.col, 19);
-  ck_assert_int_eq(r.line, 1);
+  ck_assert_int_eq(reader.pos, 19);
+  ck_assert_int_eq(reader.col, 19);
+  ck_assert_int_eq(reader.line, 1);
 
-  next_token(&r, &t); // 457
+  next_token(&reader, &t, lisp); // 457
   ck_assert_int_eq(t.type, TK_OTHER);
   ck_assert_int_eq(t.length, 3);
-  ck_assert_int_eq(r.pos, 27);
-  ck_assert_int_eq(r.col, 27);
-  ck_assert_int_eq(r.line, 1);
+  ck_assert_int_eq(reader.pos, 27);
+  ck_assert_int_eq(reader.col, 27);
+  ck_assert_int_eq(reader.line, 1);
 
 }
 END_TEST
 
 START_TEST (rd_base)
 {
-  ubw_reader r;
-  ubw_reader_init(&r, NULL, "(abc)");
-
-  ubw_read(&r);
-
-  ck_assert_int_eq(r.root->type, LIST);
-  ck_assert_ptr_eq(r.root->data.list.cdr, NULL);
-  ck_assert_int_eq(r.root->data.list.car->type, SYMBOL);
+  ck_assert_int_eq(runtime.h.es->type, LIST);
+  ck_assert_ptr_eq(runtime.h.es->data.list.cdr, NULL);
+  ck_assert_int_eq(runtime.h.es->data.list.car->type, SYMBOL);
 
 }
 END_TEST

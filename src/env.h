@@ -1,3 +1,11 @@
+/**
+ * @file
+ * @ingroup core
+ * @brief Environment
+ *
+ *
+ */
+
 #pragma once
 
 #include "common.h"

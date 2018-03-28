@@ -1,3 +1,10 @@
+/** @file
+ * @brief Main caller of the test suite
+ *
+ * @defgroup tests Tests
+ * @brief Test suite for the whole Überwald project.
+ */
+
 #include <stdlib.h>
 
 #include "ubwtest.h"

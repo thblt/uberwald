@@ -1,6 +1,13 @@
+/**
+ * @file
+ * @ingroup core
+ * @brief Lisp object
+ *
+ * The primitive Lisp structures, along with a few utility functions for inspecting them.
+ */
+
 /** @file
-    @brief The primitive Lisp structures, along with a few utility
-    functions for inspecting them.
+    @brief
 */
 
 #pragma once
@@ -99,7 +106,7 @@ struct ubw_obj {
 bool ubw_list_p (ubw_obj *o);
 /** @brief Initialize a new list. */
 ubw_obj * ubw_list_init (ubw_obj *o, ubw_obj *car, ubw_obj *cdr);
-#define ubw_list_new(store, car, cdr) ubw_list_init(ubw_store_new(store), car, cdr)
+#define ubw_list_new(heap, car, cdr) ubw_list_init(ubw_heap_new(heap), car, cdr)
 
 inline ubw_obj * ubw_list_car (ubw_obj *list) {
   return list->data.list.car;
@@ -123,7 +130,7 @@ bool ubw_obj2bool(ubw_obj * o);
 /** @brief The int predicate. */
 bool ubw_int_p (ubw_obj *o);
 ubw_obj * ubw_int_init (ubw_obj *o, ubw_int v);
-#define ubw_int_new(store, val) ubw_int_init(ubw_store_new(store), val)
+#define ubw_int_new(heap, val) ubw_int_init(ubw_heap_new(heap), val)
 inline ubw_int ubw_int_unbox (ubw_obj *o) {
   return o->data.integer;
 }
@@ -134,7 +141,7 @@ inline ubw_int ubw_int_unbox (ubw_obj *o) {
 /** @brief The float predicate. */
 bool ubw_float_p (ubw_obj *o);
 ubw_obj * ubw_float_init (ubw_obj *o, ubw_float v);
-#define ubw_float_new(store, val) ubw_float_init(ubw_store_new(store), v)
+#define ubw_float_new(heap, val) ubw_float_init(ubw_heap_new(heap), v)
 inline ubw_float ubw_float_unbox (ubw_obj *o) {
   return o->data.fpn;
 }
@@ -153,7 +160,7 @@ ubw_obj * ubw_string_init (ubw_obj *o, ubw_string s);
 bool ubw_symbol_p (ubw_obj *o);
 ubw_obj * ubw_symbol_init (ubw_obj *o, ubw_symbid v);
 ubw_symbid * ubw_symbol_unbox (ubw_obj *o);
-#define ubw_symbol_new(store, val) ubw_symbol_init(ubw_store_new(store), v)
+#define ubw_symbol_new(heap, val) ubw_symbol_init(ubw_heap_new(heap), v)
 
 // * Keywords
 
@@ -161,7 +168,7 @@ ubw_symbid * ubw_symbol_unbox (ubw_obj *o);
 bool ubw_keyword_p (ubw_obj *o);
 ubw_obj * ubw_keyword_init (ubw_obj *o, ubw_symbid v);
 ubw_symbid * ubw_keyword_unbox (ubw_obj *o);
-#define ubw_keyword_new(store, val) ubw_keyword_init(ubw_store_new(store), v)
+#define ubw_keyword_new(heap, val) ubw_keyword_init(ubw_heap_new(heap), v)
 
 // * CFunc
 

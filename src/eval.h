@@ -1,7 +1,12 @@
+/**
+ * @file
+ * @ingroup core
+ * @brief Lisp evaluation
+ *
+ * This is the core of the Lisp evaluation mechanism.
+ */
+
 #pragma once
 
 #include "common.h"
 #include "object.h"
-#include "store.h"
-
-ubw_obj * ubw_eval(ubw_store * store, ubw_obj * form);
