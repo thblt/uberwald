@@ -137,7 +137,7 @@ add_executable(cli ${UBW_CLI_SOURCES}
 
 SET_TARGET_PROPERTIES(cli PROPERTIES OUTPUT_NAME "uberwald")
 target_link_libraries(cli dylib)
-target_link_libraries(cli ${READLINE_LIBRARIES})
+target_link_libraries(cli readline)
 
 # ** Hash benchmark
 
@@ -157,34 +157,20 @@ set_target_properties(hashbench PROPERTIES EXCLUDE_FROM_ALL YES)
 if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.9)
   find_package(Doxygen REQUIRED)
 
+  set (DOXYGEN_COLLABORATION_GRAPH NO)
   set (DOXYGEN_EXTRACT_PRIVATE YES)
   set (DOXYGEN_LAYOUT_FILE ${PROJECT_SOURCE_DIR}/DoxygenLayout.xml)
   set (DOXYGEN_OPTIMIZE_OUTPUT_FOR_C YES)
   set (DOXYGEN_PROJECT_NAME "Überwald")
   set (DOXYGEN_PROJECT_NUMBER "${UBW_VERSION_MAJOR}.${UBW_VERSION_MINOR}.${UBW_VERSION_PATCH}")
-
-  set (DOXYGEN_SOURCE_BROWSER YES)
-
-  set (DOXYGEN_MACRO_EXPANSION YES)
-  set (DOXYGEN_EXPAND_ONLY_PREDEF YES)
-  # Check support macros.
-  set (DOXYGEN_PREDEFINED "START_TEST(name)=void name(int i)
-    END_TEST=// End")
+  set (DOXYGEN_RECURSIVE YES)
 
   doxygen_add_docs(apidoc ${UBW_LIB_HEADERS}
     ${UBW_LIB_SOURCES}
     ${UBW_CLI_SOURCES}
     ${UBW_TESTS_SOURCES}
-    ${UBW_CLI_SOURCES})
+    ${UBW_CLI_SOURCES}
+    )
 else()
   message(WARNING "API documentation generation requires CMake >= 3.9.  Dropping this target.")
 endif()
-
-# ** TAGS
-
-# (set UBW_TAGS ${CMAKE_SOURCE_DIR}/TAGS)
-
-# set_source_files_properties(${UBW_TAGS} PROPERTIES GENERATED true)
-#add_custom_target(${UBW_TAGS}
-#     COMMAND ctags -e -R --c++-kinds=+p --fields=+iaS --extra=+q .
-#    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
