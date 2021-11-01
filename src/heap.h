@@ -1,7 +1,7 @@
 /**
  * @file
  * @ingroup core
- * @brief Heap manager
+ * @brief Heap controller
  *
  * The heap is a contiguous memory area whose size is expressed in
  * Lisp objects.  In systems with a libc, heap management is partially
@@ -14,10 +14,8 @@
 #include "config.h"
 #include "object.h"
 
-/** The Überwald in-memory storage system.  This should store a
-    reference to the root environment, the first free position on the
-    heap, etc.  For now, it's a dummy representation so that the rest
-    compiles. */
+/** @brief The heap controller
+ */
 typedef struct {
   ubw_obj
   /** @brief First slot */
@@ -28,42 +26,38 @@ typedef struct {
   /** @brief Free map */
   struct {
     ubw_obj *s, *e;
-  } f[UBW_HEAP_MAX_FRAGMENTATION];
+  } map[UBW_HEAP_MAX_FRAGMENTATION];
 
   ubw_obj
-  /** @brief First slot of ephemeral store, if existing, or NULL.  T
-   *
-   * The ephemeral store ranges from `h` to the end of the heap,
-   * `hend`.  It contains at least one slot.
-   *
-   * Formally, if NULL != es, it is guaranteed that: es <= esh && esh
-   * <= hend && es != hend.
-   */
+  /** @brief First slot of ephemeral store, if existing, or NULL. */
     *es,
   /** @brief Head of ephemeral store.  Meaningless if NULL == es. */
-    *esh;
+    *esh,
+  /** @brief Last slot of ephemeral store */
+    *esend;
   /** @brief Counter for users of the ephemeral store. */
   int esc;
 } ubw_heap;
 
-/** @brief Initialize a new heap. */
+/**
+ *  @brief Initialize a new heap.
+*/
 ubw_heap * ubw_heap_init(ubw_heap *h, int sz, ubw_obj *dptr);
 
-/** @brief Clear the heap.
+/**
+ * @brief Clear the heap.
  *
  * Deallocate everything on the heap.
 */
 bool ubw_heap_clear(ubw_heap *h);
 
-/** @brief Allocate a new object on the heap.
- *
-  * Allocate a new object on the heap and return a pointer to this
-  * object. */
-struct ubw_obj * ubw_heap_new(ubw_heap *h);
+/** @brief Allocate a new object on the heap and return a pointer to
+  * this object. */
+ubw_obj * ubw_new(ubw_heap *h);
 
 /** @brief Allocate contiguous space on the heap for n objects and
     return a pointer to the first object. */
-struct ubw_obj * ubw_heap_alloc(ubw_heap *h, int size);
+struct ubw_obj * ubw_malloc(ubw_heap *h, int size);
 
 /** @brief Resize already allocated block.
  *
@@ -115,15 +109,14 @@ ubw_obj * ubw_move(ubw_heap *h, ubw_obj *f, ubw_obj *t);
  * first.  In this case, defragmentation is always performed in full.
  *
  * \return a pointer to the newly allocated store or NULL.  NULL has
- * two meanings, depending on the value of h->es:
- *
- * \return - if NULL == h->es; there isn't enough memory on the heap
+ * two meanings, depending on the value of ubw_heap.es:
+ *  - if NULL == ubw_heap.es; there isn't enough memory on the heap
  *    to allocate `size` slots.
+ *  - otherwise, the ephemeral store was already allocated and
+ *    no further allocation has taken place.
  *
- * \return - otherwise, the ephemeral store was already allocated and
- * no further allocation has taken place.
- *
- * \warning
+ * \note To only receive NULL if no ephemeral store exists when the
+ * function returns, use ubw_es_maybe_alloc().
  */
 ubw_obj * ubw_es_alloc(ubw_heap *h, int size);
 
@@ -143,20 +136,66 @@ void ubw_es_destroy(ubw_heap *h);
 
 /** @brief Use the ephemeral store.
  *
- * Increase the consumer count of the ephemeral store.
+ * Increase the reference counter on the ephemeral store.  See
+ * ubw_heap and ubw_es_release() for more information on reference
+ * counting.
  */
-inline void ubw_es_claim(ubw_heap *h) {
+inline void ubw_es_hold(ubw_heap *h) {
   h->esc++;
 }
 
 /** @brief End use of the ephemeral store.
  *
- * Decrease the consumer count of the ephemeral store.  If count
- * reaches zero, the store gets cleared, but not deallocated.
+ * Decrease the reference counter of the ephemeral store, and clear the
+ * store if the counter reaches zero.
+ *
+ * \warning This does not deallocate the store, but only destroys all its values.
  */
 inline void ubw_es_release(ubw_heap *h) {
   h->esc--;
   if (0 == h->esc) {
+    h->esh = h->es;
 
+    #ifdef UBW_DEBUG
+    for (ubw_obj *o = h->es; o <= h->esend; o++) {
+      o->type = _DELETED;
+    }
+    #endif
   }
+
+
+}
+
+inline bool ubw_es_allocated(ubw_heap *h) {
+  return NULL != h->es;
+}
+
+/** @brief Total capacity of the ephemeral store
+ *
+ * \warning The return value of this function is unspecified if the
+ * store is unallocated.  Use ubw_es_allocated() to control existence of
+ * the store.
+ */
+inline ptrdiff_t ubw_es_capacity(ubw_heap *h) {
+  return h->esend - h->es;
+}
+
+/** @brief Available capacity of the ephemeral store
+ *
+ * \warning The return value of this function is unspecified if the
+ * store is unallocated.  Use ubw_es_allocated() to control existence of
+ * the store.
+ */
+inline ptrdiff_t ubw_es_available(ubw_heap *h) {
+  return h->esend - h->esh;
+}
+
+/** @brief Length of data in the ephemeral store
+ *
+ * \warning The return value of this function is unspecified if the
+ * store is unallocated.  Use ubw_es_allocated() to control existence of
+ * the store.
+ */
+inline ptrdiff_t ubw_es_length(ubw_heap *h) {
+  return h->esend - h->esh;
 }

@@ -26,9 +26,9 @@ typedef struct {
  *
  * @param s The ubw_stack to initialize.
  * @param capacity Length.
- * @param dptr Either null, or a pointer to an allocated memory range >= capacity*sizeof(ubw_obj*).
+ * @param ptr Either null, or a pointer to an allocated memory range >= capacity*sizeof(ubw_obj*).
  */
-ubw_stack * ubw_stack_init(ubw_stack *s, const int capacity, ubw_obj **dptr);
+ubw_stack * ubw_stack_init(ubw_stack *s, const int capacity, ubw_obj **ptr);
 
 /** @TODO Document */
 ubw_obj * ubw_stack_push(ubw_stack *s, ubw_obj* o);

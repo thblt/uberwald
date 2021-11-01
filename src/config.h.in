@@ -1,13 +1,12 @@
 /**
+ * @file
+ * @brief Build configuration for Überwald.
+ *
  * @defgroup config Build configuration
  * @brief Build configuration
  *
- * @file
- * @brief Build configuration for Überwald.
- * @ingroup config
- *
- * This file collects the various options configurable at build time,
- * by passing them to the first cmake invocation as
+ * This file collects various options that can be configured while
+ * building Überwald, by passing them to the first cmake invocation as
  * `-DOPTION_NAME=VALUE`.
  *
  * For preprocessor macros, the option name is always equal to the
@@ -20,7 +19,11 @@
  *
  * \note The Überwald CLI can report the options it was built with if
  * called with `--version`.
+ *
+ * @{
  */
+
+// @FIXME Make sure everything is associated to a group.
 
 #pragma once
 
@@ -54,41 +57,59 @@
 #define UBW_VERSION_STRING "@UBW_VERSION_MAJOR@.@UBW_VERSION_MINOR@.@UBW_VERSION_PATCH@"
 
 /**
- * @brief The underlying C type of Lisp integers, configured by `UBW_LISP_TYPES_INT_TYPE`
+ * @brief The underlying C type of Lisp integers, configured by `UBW_LISP_TYPES_INT_TYPE`.
+ * @ingroup config_object
  */
 typedef @UBW_LISP_TYPES_INT_TYPE@ ubw_int;
 
 /**
- * @brief The underlying C type of Lisp floats, configured by `UBW_LISP_TYPES_FLOAT_TYPE`
+ * @brief The underlying C type of Lisp floats, configured by `UBW_LISP_TYPES_FLOAT_TYPE`.
+ * @ingroup config_object
  */
 typedef @UBW_LISP_TYPES_FLOAT_TYPE@ ubw_float;
 
 /**
- * @brief The underlying C type of Lisp characters, configured by `UBW_LISP_TYPES_CHAR_TYPE`
+ * @brief The underlying C type of Lisp characters, configured by `UBW_LISP_TYPES_CHAR_TYPE`.
+ * @ingroup config_object
  */
 typedef @UBW_LISP_TYPES_CHAR_TYPE@ ubw_char;
 
 /**
- * @brief The size in bits of symbol identifiers.
+ * @brief The type of symbol identifiers, configured by `UBW_STBL_ID_TYPE`.
+ * @ingroup config_stbl
  */
-#define UBW_SYMTBL_SYMBID_SIZE @UBW_SYMTBL_SYMBID_SIZE@
+typedef @UBW_STBL_ID_TYPE@ ubw_symbid;
 
 /**
- * @brief The type of symbol identifiers.
- *
- * This is an unsigned int of exactly UBW_SYMTBL_SYMBID_SIZE bits.
+ * @brief The size in bits of symbol hashes
+ * @ingroup config_stbl
  */
-typedef uint@UBW_SYMTBL_SYMBID_SIZE@_t ubw_symbid;
+#define UBW_STBL_HASH_SIZE @UBW_STBL_HASH_SIZE@
 
 /**
- * @brief The hash function used by the symbol table
+ * @brief Type of a symbol hash, an unsigned int of `UBW_STBL_HASH_SIZE` bits.
+ * @ingroup config_stbl
  */
-#define UBW_SYMTBL_HASH @UBW_SYMTBL_HASH@
+typedef uint@UBW_STBL_HASH_SIZE@_t ubw_symbhash;
+
+/**
+ * @brief The hash function used by the symbol table.
+ */
+#define UBW_STBL_HASH_FUNC @UBW_STBL_HASH_FUNC@
+
+/** @brief The symbol hash function.
+ * @ingroup config_stbl */
+#define ubw_stbl_hash(beg, end) ubw_@UBW_STBL_HASH_FUNC@_@UBW_STBL_HASH_SIZE@ (beg, end)
 
 /**
  * @brief The maximum length of a Lisp symbol
+ * @ingroup config_stbl
  */
 #define UBW_LISP_MAX_SYMBOL_LENGTH @UBW_LISP_MAX_SYMBOL_LENGTH@
+
+#if UBW_LISP_MAX_SYMBOL_LENGTH < 1
+#error Bad max symbol length.
+#endif
 
 /**
  * @brief @TODO Document
@@ -107,3 +128,5 @@ typedef uint@UBW_SYMTBL_SYMBID_SIZE@_t ubw_symbid;
  * minus one.  Eg, 1 = absolutely no fragmentation; 2 = max 1 hole, etc.
  */
 #define UBW_HEAP_MAX_FRAGMENTATION @UBW_HEAP_MAX_FRAGMENTATION@
+
+/** @} */

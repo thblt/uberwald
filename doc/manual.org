@@ -4,7 +4,6 @@
 #+DATE: 2018-03-24
 #+LANGUAGE: en
 
-Überwald is a minimal Lisp machine optimized for lightness, speed and portability.  Überwald should run on any system which can be targeted by a C compiler.  The core Lisp machine has absolutely no dependencies whatsoever, and does not even depend on a libc.
 
 This manual documents the Überwald LISP machine and the Lisp dialect it runs.
 

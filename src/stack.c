@@ -1,7 +1,7 @@
 #include "stack.h"
 
-ubw_stack* ubw_stack_init(ubw_stack *s, const int capacity, ubw_obj **dptr) {
-  s->head = s->beg = (NULL != dptr) ? dptr : malloc(capacity*sizeof(ubw_obj*));
+ubw_stack* ubw_stack_init(ubw_stack *s, const int capacity, ubw_obj **ptr) {
+  s->head = s->beg = (NULL == ptr) ? malloc(capacity*sizeof(ubw_obj*)) : ptr;
   s->end = &s->beg[capacity];
 
   return s;

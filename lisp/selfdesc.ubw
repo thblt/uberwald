@@ -1,0 +1,72 @@
+;; selfdesc.ubw --- self-description of a running machine.
+
+;; @file
+;; @brief Outputs a self-description of the key features of the
+;;        Überwald machine.
+;;
+;; On Überwald CLI, passing the `--version` flag to the CLI program
+;; will invoke selfdesc and exit.  With --json, JSON is generated
+;; instead of the Unicode tree.
+;;
+;; ╭──────────╮
+;; │ Überwald │
+;; ╰┬─────────╯
+;;  │ ╭──────────────╮
+;;  ├─┤ Lisp machine │
+;;  │ ╰┬─────────────╯
+;;  │  ├── Version........................0.0.0
+;;  │  ├── Host platform..................amd64
+;;  │├── Host OS........................GNU/Linux
+;;  │  │ ╭──────────────╮
+;;  │  ├─┤ Data lengths │
+;;  │  │ ╰┬─────────────╯
+;;  │  │  ├── Character...................32 bits
+;;  │  │  ├── Integer.....................64 bits
+;;  │  │  └── Float.......................64 bits
+;;  │  │ ╭───────────────╮
+;;  │  └─┤ LISP features │
+;;  │    ╰┬──────────────╯
+;;  │     ├── Namespacing.................LISP-1
+;;  │     └── GC mode.....................Mark and sweep
+;;  │ ╭──────────────╮
+;;  ├─┤ Text support │
+;;  │ ╰┬─────────────╯
+;;  │  ├── Native text support............Enabled
+;;  │  ├── String format..................Pascal
+;;  │  ├── Max string length..............64^2 characters
+;;  │  ├── UTF-8..........................Enabled
+;;  │  └── Char can hold Unicode scalar...Yes
+
+(defmod selfdesc
+  :export ubw/selfdesc)
+
+;; We need a standard output.
+(preload-assert (ubw/has? stdout))
+
+;; This is Lisp-2 code.
+(require ubw:lisp2) ;; If the machine is compiled in Lisp-2 mode,
+                    ;; this is an empty package.  If Lisp-1, it
+                    ;; enables basic Lisp-2 compatibility.
+
+(if (ubw/has? utf8)
+    (defconst symb-se #╭
+              symb-sw #╮
+              symb-ne #╰
+              symb-nw #╯
+              symb-ns #│
+              symb-ew #─)
+    (defconst symb-se #+
+              symb-sw #+
+              symb-ne #+
+              symb-nw #+)
+
+    )
+
+(if (has? cli)
+    (defapp selfdesc :extends uberwald
+      :trigger "--version"
+      :bind ubw/selfdesc
+      :option "--json"
+      )
+
+(defn ubw/selfdesc ())

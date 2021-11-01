@@ -4,12 +4,12 @@
 
 #define TABSTOP 4
 
-void print(ubw_obj *o) {
-  print_(o, false);
+void print(ubw_rt *rt, ubw_obj *o) {
+  print_(rt, o, false);
   printf("\n");
 }
 
-void print_(ubw_obj *o, bool cdr) {
+void print_(ubw_rt *rt, ubw_obj *o, bool cdr) {
 
   if (NULL == o) {
     return;
@@ -22,8 +22,8 @@ void print_(ubw_obj *o, bool cdr) {
       printf(cdr ? "" : "nil ");
     else {
       if (!cdr) printf("( ");
-      print_(ubw_list_car(o), false);
-      print_(ubw_list_cdr(o), true);
+      print_(rt, ubw_list_car(o), false);
+      print_(rt, ubw_list_cdr(o), true);
       if (!cdr) printf(") ");
     }
 
@@ -34,7 +34,7 @@ void print_(ubw_obj *o, bool cdr) {
     break;
 
   case SYMBOL:
-    printf("symbol ");
+    printf("%s ", ubw_stbl_reverse(&rt->stbl, o->symbol));
     break;
 
   case KEYWORD:

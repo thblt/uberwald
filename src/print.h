@@ -6,12 +6,14 @@
  * A basic recursive printer for Lisp objects.
  */
 
+#pragma once
 
 #include "config.h"
 #include "object.h"
+#include "runtime.h"
 
-void print(ubw_obj *o);
+void print(ubw_rt *rt, ubw_obj *o);
 
 #ifdef UBW_EXPOSE_INTERNALS
-void print_(ubw_obj *o, bool cdr);
+void print_(ubw_rt *rt, ubw_obj *o, bool cdr);
 #endif

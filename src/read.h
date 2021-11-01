@@ -1,9 +1,8 @@
 /**
- * @file
+ * @defgroup reader Reader
+ * @brief The fundamental Lisp reader.
  * @ingroup core
- * @brief Reader
- *
- * The elementary Lisp reader.
+ * @{
  */
 
 #pragma once
@@ -55,10 +54,10 @@ typedef struct {
 } ubw_reader;
 
 /** @brief Initialize a new reader object */
-ubw_reader * ubw_reader_init(ubw_rt *rt, ubw_reader *r);
+ubw_reader * ubw_reader_init(ubw_reader *r);
 
 /** @brief read a Lisp form from a string. @TODO Document */
-void ubw_read(ubw_rt *rt, ubw_reader *rd, const char *buf);
+ubw_obj * ubw_read(ubw_rt *rt, ubw_reader *rd, const char *buf);
 
 /** @brief Lisp wrapper around ubw_read, which see. */
 ubw_obj * ubw_lread(ubw_rt *rt, ubw_obj* buf);
@@ -73,3 +72,5 @@ void next_token(ubw_reader *r, ubw_token *t, const char* buf);
 */
 int next_sep(ubw_reader * r, const char *buf);
 #endif
+
+/** @} */

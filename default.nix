@@ -1,7 +1,8 @@
-with import <nixpkgs>{};
+with import <nixpkgs> {};
 
 { nixpkgs ? import <nixpkgs> {} }:
-stdenv.mkDerivation rec {
+
+  stdenv.mkDerivation rec {
   version = "0.0.0";
   name = "uberwald-${version}";
 
@@ -11,15 +12,15 @@ stdenv.mkDerivation rec {
   # };
 
   buildInputs = with pkgs; [
-                cmake
-                readline
-                llvmPackages.clang.cc
-                doxygen
-                check
-                bear
-                ctags
-                python36Packages.sphinx
-                python36Packages.breathe
-                python36Packages.sphinx_rtd_theme
-                lldb ];
-                }
+    cmake
+    readline
+    clang
+    doxygen
+    check
+    bear
+    ctags
+    python38Packages.sphinx
+    python38Packages.breathe
+    python38Packages.sphinx_rtd_theme
+    lldb ];
+}

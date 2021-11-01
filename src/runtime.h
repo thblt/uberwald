@@ -4,12 +4,12 @@
  * @brief Runtime state.  See description in ubw_rt.
  */
 
+#pragma once
 
 #include "env.h"
 #include "stack.h"
 #include "heap.h"
-#include "read.h"
-#include "symtbl.h"
+#include "stbl.h"
 
 /** @brief The Überwald runtime.
  *
@@ -19,11 +19,11 @@
  *  - the symbol table controller;
  *  - the environment stack.
  */
-typedef struct {
+typedef struct ubw_rt {
   /** @brief Heap */
   ubw_heap h;
   /** @brief Symbol table */
-  ubw_symtbl s;
+  ubw_stbl stbl;
   /** @brief Environment stack */
   ubw_env env;
 } ubw_rt;

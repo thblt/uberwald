@@ -108,8 +108,6 @@ START_TEST (fpush_fpop_pointer_interaction)
 
   ubw_stack_fpop(&s5);
   ck_assert_ptr_eq(s5.head, s5.beg);
-
-  free(s5.beg);
 }
 END_TEST
 
@@ -126,8 +124,6 @@ START_TEST (pointer_alignment)
   ck_assert_ptr_eq(s5.head, s5.end-1);
   ubw_stack_push(&s5, &o3);
   ck_assert(s5.head == s5.end);
-
-  free(s5.beg);
 }
 END_TEST
 
@@ -382,7 +378,7 @@ END_TEST
  *
  * Control that peek returns exactly the last pushed value and leaves
  * the stack in a completely unmodified state. */
-START_TEST(peek_sanity)
+START_TEST (peek_sanity)
 {
   ubw_obj** head;
 
@@ -396,19 +392,19 @@ START_TEST(peek_sanity)
 }
 END_TEST
 
-/** @brief Check that peek is sane.
+/** @brief Check that fpeek is sane.
  *
  * Control that peek returns exactly the last pushed value and leaves
  * the stack in a completely unmodified state. */
-START_TEST(fpeek_sanity)
+START_TEST (fpeek_sanity)
 {
   ubw_obj** head;
 
   ubw_stack_push(&s5, &o0);
   ubw_stack_push(&s5, &o1);
   head = s5.head;
-  ck_assert_ptr_eq(&o1, ubw_stack_peek(&s5));
-  ck_assert_ptr_eq(&o1, ubw_stack_peek(&s5));
+  ck_assert_ptr_eq(&o1, ubw_stack_fpeek(&s5));
+  ck_assert_ptr_eq(&o1, ubw_stack_fpeek(&s5));
   ck_assert_ptr_eq(head, s5.head);
 }
 END_TEST
@@ -456,7 +452,6 @@ START_TEST (peek_underflow)
   ck_assert_ptr_eq(NULL, ubw_stack_peek(&s5));
   ck_assert_ptr_eq(head, s5.head);
 }
-
 END_TEST
 
 Suite * stack_c_suite() {

@@ -1,12 +1,14 @@
 #include <stdio.h>
 #include <time.h>
 
-#include "symtbl.h"
+#include "stbl.h"
 
 extern const char *hashwords[];
 
 #define WORDCOUNT 466544
 #define REPETITIONS_COUNT 10
+
+int lengths[WORDCOUNT];
 
 uint32_t hashes32[WORDCOUNT];
 uint64_t hashes64[WORDCOUNT];
@@ -31,6 +33,8 @@ int comp64(void *a, void *b) {
   return 0;
 }
 
+/ * This should
+
 void report(const char *fname,
             short size,
             clock_t ticks,
@@ -45,15 +49,15 @@ void report(const char *fname,
          100*((double)collisions/WORDCOUNT));
 }
 
-uint64_t consthash(const char* s) {
+int64_t consthash(const char* s) {
   return 12;
 }
 
-void benchmark64(const char *fname, uint64_t (func) (const char *)) {
+void benchmark64(const char *fname, uint64_t (func) (const char *, const char *)) {
   start = clock();
   for (int r = 0; r < REPETITIONS_COUNT; r++)
     for (int i = 0; i < WORDCOUNT; i++)
-      hashes64[i] = func(hashwords[i]);
+      hashes64[i] = func(hashwords[i], hashwords[i] + lengths[i]);
   end = clock();
 
   qsort(hashes64,
@@ -74,6 +78,10 @@ void benchmark64(const char *fname, uint64_t (func) (const char *)) {
 }
 
 int main() {
+  for (int i = 0; i<WORDCOUNT; i++) {
+    lengths[i] = strlen(hashwords[i]);
+  }
+
   if (hashwords[WORDCOUNT] != 0x00) {
     printf("Bad WORDCOUNT, aborting.\n");
     exit(EXIT_FAILURE);

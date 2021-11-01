@@ -7,14 +7,6 @@ set (UBW_VERSION_PATCH 0)
 
 set(CMAKE_PREFIX_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake ${CMAKE_PREFIX_PATH})
 
-set (UBW_LIB_SOURCE_DIR ${PROJECT_SOURCE_DIR}/src)
-set (UBW_CLI_SOURCE_DIR ${PROJECT_SOURCE_DIR}/src/cli)
-set (UBW_HASHBENCH_SOURCE_DIR ${PROJECT_SOURCE_DIR}/hashbench)
-set (UBW_TESTS_SOURCE_DIR ${PROJECT_SOURCE_DIR}/tests)
-
-include_directories(${UBW_LIB_SOURCE_DIR})
-include_directories(${UBW_CLI_SOURCE_DIR})
-
 set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -std=c11 -pedantic")
 set (CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -DDEBUG")
 
@@ -43,18 +35,23 @@ set(UBW_LISP_TYPES_CHAR_TYPE "int_least32_t" CACHE string
 set(UBW_LISP_MAX_SYMBOL_LENGTH 512 CACHE STRING
   "Maximum length, in characters, of a symbol.")
 
-# ** Storage
+# ** Heap
 
 set(UBW_HEAP_MAX_FRAGMENTATION 128 CACHE STRING
   "Size of the symbols table.  This is the maximum number of symbols that can be interned.")
 
-set(UBW_SYMTBL_SIZE 1024 CACHE STRING
+# ** Symbol table
+
+set(UBW_STBL_SIZE 1024 CACHE STRING
   "Size of the symbols table.  This is the maximum number of symbols that can be interned.")
 
-set(UBW_SYMTBL_SYMBID_SIZE 64 CACHE STRING
-  "Size of a symbol id.")
+set(UBW_STBL_ID_TYPE int CACHE STRING
+  "Size of the symbols table.  This is the maximum number of symbols that can be interned.")
 
-set (UBW_SYMTBL_HASH "FNV1" CACHE STRING
+set(UBW_STBL_HASH_SIZE 64 CACHE STRING
+  "Size of symbol hashes.")
+
+set (UBW_STBL_HASH_FUNC "fnv1" CACHE STRING
   "The symbol hash algorithm.")
 
 set(UBW_EPH_STORE_SIZE 1024 CACHE STRING
@@ -74,6 +71,9 @@ configure_file (
 
 # ** Library
 
+set (UBW_LIB_SOURCE_DIR ${PROJECT_SOURCE_DIR}/src)
+include_directories(${UBW_LIB_SOURCE_DIR})
+
 set (UBW_LIB_SOURCES
   ${UBW_LIB_SOURCE_DIR}/eval.c
   ${UBW_LIB_SOURCE_DIR}/heap.c
@@ -81,7 +81,7 @@ set (UBW_LIB_SOURCES
   ${UBW_LIB_SOURCE_DIR}/print.c
   ${UBW_LIB_SOURCE_DIR}/read.c
   ${UBW_LIB_SOURCE_DIR}/stack.c
-  ${UBW_LIB_SOURCE_DIR}/symtbl.c)
+  ${UBW_LIB_SOURCE_DIR}/stbl.c)
 
 set (UBW_LIB_HEADERS
   ${UBW_CONFIG_HEADER}
@@ -93,7 +93,7 @@ set (UBW_LIB_HEADERS
   ${UBW_LIB_SOURCE_DIR}/read.h
   ${UBW_LIB_SOURCE_DIR}/runtime.h
   ${UBW_LIB_SOURCE_DIR}/stack.h
-  ${UBW_LIB_SOURCE_DIR}/symtbl.h
+  ${UBW_LIB_SOURCE_DIR}/stbl.h
   ${UBW_LIB_SOURCE_DIR}/uberwald.h
   ${UBW_CONTAINERS_SRC})
 
@@ -107,6 +107,8 @@ set_target_properties(dylib PROPERTIES OUTPUT_NAME "uberwald")
 
 # ** Tests
 
+set (UBW_TESTS_SOURCE_DIR ${PROJECT_SOURCE_DIR}/tests)
+
 find_package(Check REQUIRED)
 enable_testing()
 include_directories(${CHECK_INCLUDE_DIRS})
@@ -115,7 +117,7 @@ set(UBW_TESTS_SOURCES ${UBW_TESTS_SOURCE_DIR}/main.c
   ${UBW_TESTS_SOURCE_DIR}/stack_test.c
   ${UBW_TESTS_SOURCE_DIR}/object_test.c
   ${UBW_TESTS_SOURCE_DIR}/read_test.c
-  ${UBW_TESTS_SOURCE_DIR}/symtbl_test.c)
+  ${UBW_TESTS_SOURCE_DIR}/stbl_test.c)
 
 add_executable(tests ${UBW_TESTS_SOURCES})
 
@@ -124,9 +126,11 @@ target_compile_definitions(tests PRIVATE -DUBW_EXPOSE_INTERNALS)
 target_link_libraries(tests dylib)
 target_link_libraries(tests ${CHECK_LIBRARIES})
 
-add_test(tests ${CMAKE_CURRENT_BINARY_DIR}/ubwtests)
+add_test(tests ${CMAKE_CURRENT_BINARY_DIR}/tests)
 
 # ** CLI Executable
+
+set (UBW_CLI_SOURCE_DIR ${PROJECT_SOURCE_DIR}/src/cli)
 
 find_package(Readline REQUIRED)
 
@@ -137,9 +141,11 @@ add_executable(cli ${UBW_CLI_SOURCES}
 
 SET_TARGET_PROPERTIES(cli PROPERTIES OUTPUT_NAME "uberwald")
 target_link_libraries(cli dylib)
-target_link_libraries(cli readline)
+target_link_libraries(cli ${READLINE_LIBRARIES})
 
 # ** Hash benchmark
+
+set (UBW_HASHBENCH_SOURCE_DIR ${PROJECT_SOURCE_DIR}/hashbench)
 
 set (UBW_HASHBENCH_SOURCES ${UBW_HASHBENCH_SOURCE_DIR}/hashbench.c
   ${UBW_HASHBENCH_SOURCE_DIR}/hashwords.c)
@@ -152,25 +158,64 @@ target_link_libraries(hashbench dylib)
 
 set_target_properties(hashbench PROPERTIES EXCLUDE_FROM_ALL YES)
 
-# ** API Documentation
+# ** Manual
 
-if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.9)
-  find_package(Doxygen REQUIRED)
+# The manual is generated using Sphinx with Breathe, which
+# uses Doxygen to parse in-source code documentation.  This target is two fold
 
-  set (DOXYGEN_COLLABORATION_GRAPH NO)
-  set (DOXYGEN_EXTRACT_PRIVATE YES)
-  set (DOXYGEN_LAYOUT_FILE ${PROJECT_SOURCE_DIR}/DoxygenLayout.xml)
-  set (DOXYGEN_OPTIMIZE_OUTPUT_FOR_C YES)
-  set (DOXYGEN_PROJECT_NAME "Überwald")
-  set (DOXYGEN_PROJECT_NUMBER "${UBW_VERSION_MAJOR}.${UBW_VERSION_MINOR}.${UBW_VERSION_PATCH}")
-  set (DOXYGEN_RECURSIVE YES)
+# *** Doxygen intermediate target
 
-  doxygen_add_docs(apidoc ${UBW_LIB_HEADERS}
-    ${UBW_LIB_SOURCES}
-    ${UBW_CLI_SOURCES}
-    ${UBW_TESTS_SOURCES}
-    ${UBW_CLI_SOURCES}
-    )
+if(NOT CMAKE_VERSION VERSION_GREATER_EQUAL 3.9)
+  message(WARNING "Documentation generation requires CMake >= 3.9.  Dropping this target.")
 else()
-  message(WARNING "API documentation generation requires CMake >= 3.9.  Dropping this target.")
+  set (DOXYGEN_GENERATE_HTML YES)
+  set (DOXYGEN_GENERATE_XML YES)
+
+  set (DOXYGEN_EXTRACT_PRIVATE YES)
+  set (DOXYGEN_PROJECT_NUMBER "${UBW_VERSION_MAJOR}.${UBW_VERSION_MINOR}.${UBW_VERSION_PATCH}")
+
+  set (DOXYGEN_SOURCE_BROWSER YES)
+
+  set (DOXYGEN_MACRO_EXPANSION YES)
+  set (DOXYGEN_EXPAND_ONLY_PREDEF YES)
+  # Support macros for Check and internals
+  set (DOXYGEN_PREDEFINED "\"START_TEST(name)=void name(int i)\""
+    "END_TEST=1" \n
+    "UBW_EXPOSE_INTERNALS=1"
+    )
+
+  find_package(Doxygen QUIET)
+
+  if(NOT ${Doxygen_FOUND})
+    message(WARNING "Doxygen NOT FOUND, dropping documentation target.")
+  else()
+    doxygen_add_docs(doxygen ${UBW_LIB_HEADERS}
+      ${UBW_LIB_SOURCES}
+      ${UBW_CLI_SOURCES}
+      ${UBW_TESTS_SOURCES}
+      ${UBW_CLI_SOURCES})
+  endif()
 endif()
+
+# *** Sphinx final target
+
+set (UBW_DOC_DIR ${PROJECT_SOURCE_DIR}/doc)
+
+find_package(Sphinx QUIET)
+
+if(NOT ${Sphinx_FOUND})
+  message(WARNING "Sphinx NOT FOUND, dropping documentation target.")
+else()
+  add_custom_target(doc
+    COMMAND ${SPHINX_EXECUTABLE} -b html ${UBW_DOC_DIR} ${PROJECT_BINARY_DIR}/doc
+    DEPENDS doxygen)
+endif()
+
+# ** TAGS
+
+# (set UBW_TAGS ${CMAKE_SOURCE_DIR}/TAGS)
+
+# set_source_files_properties(${UBW_TAGS} PROPERTIES GENERATED true)
+#add_custom_target(${UBW_TAGS}
+#     COMMAND ctags -e -R --c++-kinds=+p --fields=+iaS --extra=+q .
+#    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
